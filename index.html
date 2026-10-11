@@ -420,9 +420,14 @@
     e.preventDefault();
     var email=document.getElementById('wlEmail').value.trim();
     if(!email) return;
+    var btn=this.querySelector('button'); btn.disabled=true; btn.textContent='Saving…';
     try{var list=JSON.parse(localStorage.getItem('aiscan_wl')||'[]');list.push({e:email,t:Date.now()});localStorage.setItem('aiscan_wl',JSON.stringify(list));}catch(_){}
-    document.getElementById('wlForm').hidden=true;
-    document.getElementById('wlNote').innerHTML='<span style="color:var(--ok)">✓ You\'re on the list.</span> We\'ll email '+esc(email)+' when Pro reports go live.';
+    function done(){
+      document.getElementById('wlForm').hidden=true;
+      document.getElementById('wlNote').innerHTML='<span style="color:var(--ok)">✓ You\'re on the list.</span> We\'ll email '+esc(email)+' when Pro reports go live.';
+    }
+    fetch('save-email.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'email='+encodeURIComponent(email)})
+      .then(function(r){return r.ok?r:Promise.reject();}).then(done).catch(done);
   });
 
   // copy email
