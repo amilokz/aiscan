@@ -1,0 +1,28 @@
+# AIScan
+
+> AIScan is a free, browser-based security scanner for AI-generated code. Paste code from Cursor, v0, Lovable, Bolt or Claude and it flags common vulnerabilities — SQL injection, hardcoded API keys, missing authentication, XSS, weak hashing, open CORS and more — with the exact line and a fix. The scan runs client-side; nothing is uploaded.
+
+## What AIScan checks (15 security checks)
+- SQL injection (user input concatenated into queries)
+- Hardcoded secrets and API keys (Stripe, AWS, OpenAI, GitHub, Slack, SendGrid, database URLs, JWTs, private keys)
+- Command / code execution (eval, exec, shell_exec on request data)
+- Cross-site scripting (raw innerHTML, echoed input)
+- Missing authentication on admin and dangerous routes
+- Weak password hashing (MD5, SHA1)
+- Debug mode and default/blank database credentials
+- Wide-open CORS
+- Path traversal, SSRF / open redirect
+- Insecure deserialization
+- Forgeable JWTs (alg:none, verification skipped)
+- Insecure cookie flags, CSRF disabled, weak randomness for tokens
+
+## Guides
+- Is Cursor-generated code secure?: https://aiscan.akclnt.com/blog/is-cursor-generated-code-secure.html
+- Is v0 code secure?: https://aiscan.akclnt.com/blog/is-v0-code-secure.html
+- Is a Lovable app secure?: https://aiscan.akclnt.com/blog/is-lovable-app-secure.html
+- Is Bolt.new code secure?: https://aiscan.akclnt.com/blog/is-bolt-new-code-secure.html
+- Claude-generated code vulnerabilities: https://aiscan.akclnt.com/blog/claude-generated-code-vulnerabilities.html
+- How to fix an exposed API key: https://aiscan.akclnt.com/blog/how-to-fix-exposed-api-key.html
+
+## Use it
+- Free scanner: https://aiscan.akclnt.com/#scan

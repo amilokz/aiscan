@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Exposed API Key in Your Code? Here Is How to Fix It Fast | AIScan</title>
+<meta name="description" content="Found an API key hardcoded in your code or committed to Git? Here is exactly what to do: rotate, move to env vars, and scrub it from history — step by step.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/how-to-fix-exposed-api-key.html">
+<meta property="og:title" content="Exposed API Key in Your Code? Here Is How to Fix It">
+<meta property="og:description" content="Found an API key hardcoded in your code or committed to Git? Here is exactly what to do: rotate, move to env vars, and scrub it from history — step by step.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Exposed API Key in Your Code? Here Is How to Fix It","description":"Found an API key hardcoded in your code or committed to Git? Here is exactly what to do: rotate, move to env vars, and scrub it from history — step by step.","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/how-to-fix-exposed-api-key.html"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What should I do if I exposed an API key?","acceptedAnswer":{"@type":"Answer","text":"Rotate the key immediately in the provider dashboard, move the new key to an environment variable, remove the old key from Git history, scan for other leaked secrets, and add .env to .gitignore to prevent it recurring."}},{"@type":"Question","name":"Is it enough to just delete the key from my code?","acceptedAnswer":{"@type":"Answer","text":"No. A key committed to Git stays in the repository history even after you delete it in a new commit. You must scrub it from history or recreate the repo, and you should rotate the key regardless."}},{"@type":"Question","name":"How do bots find exposed keys so fast?","acceptedAnswer":{"@type":"Answer","text":"Automated scanners watch public repositories and the web continuously and can grab a newly committed key within minutes, which is why rotating the key is the first and most important step."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">Fix it now</div>
+  <h1>Exposed API Key in Your Code? Here Is How to Fix It</h1>
+  <div class="meta">6 min read · Updated 2026</div>
+  <p class="lead">You found a live API key sitting in your source, or realized you pushed one to GitHub. First: do not panic, but do move quickly — exposed keys get scraped by bots within minutes. Here is exactly what to do, in order.</p>
+  
+  <h2>Step 1: Rotate the key immediately</h2>
+  <p>Assume the key is already compromised. Go to the provider's dashboard (Stripe, OpenAI, AWS, etc.), revoke or roll the exposed key, and generate a new one. Rotating first means that even if a bot already grabbed it, the old key is dead. Everything else is cleanup.</p>
+
+  <h2>Step 2: Move the new key to an environment variable</h2>
+  <p>Never put the replacement back into the code. Read it from the environment instead:</p>
+  <pre class="ok"><code><span class="tag good">Safe</span>// Node
+const key = process.env.STRIPE_SECRET_KEY;
+
+// PHP
+$key = getenv('STRIPE_SECRET_KEY');</code></pre>
+  <p>Set the value in your host's environment settings (or a local <code>.env</code> file that is <strong>not</strong> committed), and add <code>.env</code> to <code>.gitignore</code>.</p>
+
+  <h2>Step 3: Remove the key from Git history</h2>
+  <p>Deleting the key in a new commit is not enough — it still lives in history. For a recent commit, the fastest route is to scrub it:</p>
+  <pre class="ok"><code><span class="tag good">Clean history</span># back up first, then:
+git filter-repo --replace-text <(echo "OLD_KEY==>REMOVED")
+# or use the BFG Repo-Cleaner for larger histories
+git push --force</code></pre>
+  <p>If the repo is small and new, it can be simpler to delete it and push a fresh one with the key already gone.</p>
+
+  <h2>Step 4: Check for other exposed secrets</h2>
+  <p>If one key leaked, others often did too. Scan the whole project for keys, tokens, and connection strings before you move on.</p>
+
+  <h2>Step 5: Stop it happening again</h2>
+  <ul>
+    <li>Keep all secrets in environment variables, never in code.</li>
+    <li>Add <code>.env</code> and key files to <code>.gitignore</code> from day one.</li>
+    <li>Turn on push protection / secret scanning on your Git host.</li>
+    <li>Scan before every deploy.</li>
+  </ul>
+  <div class="callout">
+    <h3>Scan your project for exposed secrets</h3>
+    <p>AIScan checks your code for hardcoded keys — Stripe, AWS, OpenAI, GitHub, database URLs and more — in your browser, with the exact line. Nothing is uploaded.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>What should I do if I exposed an API key?</summary><p>Rotate the key immediately in the provider dashboard, move the new key to an environment variable, remove the old key from Git history, scan for other leaked secrets, and add .env to .gitignore to prevent it recurring.</p></details>
+    <details><summary>Is it enough to just delete the key from my code?</summary><p>No. A key committed to Git stays in the repository history even after you delete it in a new commit. You must scrub it from history or recreate the repo, and you should rotate the key regardless.</p></details>
+    <details><summary>How do bots find exposed keys so fast?</summary><p>Automated scanners watch public repositories and the web continuously and can grab a newly committed key within minutes, which is why rotating the key is the first and most important step.</p></details>
+  </div>
+  <div class="related">
+    <h3>Related guides</h3>
+    <a href="is-cursor-generated-code-secure.html">Is Cursor-generated code secure? →</a>
+    <a href="is-lovable-app-secure.html">Is a Lovable app secure? →</a>
+    <a href="is-bolt-new-code-secure.html">Is Bolt.new code secure? →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a></p>
+</footer>
+</body>
+</html>

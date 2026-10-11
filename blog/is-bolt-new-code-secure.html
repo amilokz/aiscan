@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Is Bolt.new Code Secure? Node & Express Security Checklist | AIScan</title>
+<meta name="description" content="Bolt.new spins up full Node apps in the browser fast. Here are the security holes — command execution, open CORS, exposed env — to fix before you deploy.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/is-bolt-new-code-secure.html">
+<meta property="og:title" content="Is Bolt.new Code Secure? The Node & Express Checklist">
+<meta property="og:description" content="Bolt.new spins up full Node apps in the browser fast. Here are the security holes — command execution, open CORS, exposed env — to fix before you deploy.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Is Bolt.new Code Secure? The Node & Express Checklist","description":"Bolt.new spins up full Node apps in the browser fast. Here are the security holes — command execution, open CORS, exposed env — to fix before you deploy.","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/is-bolt-new-code-secure.html"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Bolt.new code safe to deploy?","acceptedAnswer":{"@type":"Answer","text":"Bolt.new generates real back-end code, so the risk is higher than front-end tools. It commonly leaves command execution, wide-open CORS and path traversal in place. Review and scan before deploying to a real server."}},{"@type":"Question","name":"Why is server-side AI code riskier?","acceptedAnswer":{"@type":"Answer","text":"Front-end code can mostly only leak data, but server code can run commands, read files and access your database. A single unvalidated input in a server route can compromise the whole machine."}},{"@type":"Question","name":"How do I secure a Bolt.new app?","acceptedAnswer":{"@type":"Answer","text":"Never pass user input into shell commands, restrict CORS to your domains, whitelist filenames in file routes, keep secrets in env vars with .env gitignored, and validate and rate-limit requests."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">AI code security</div>
+  <h1>Is Bolt.new Code Secure? The Node & Express Checklist</h1>
+  <div class="meta">6 min read · Updated 2026</div>
+  <p class="lead">Bolt.new is remarkable: a full Node app running in your browser from a single prompt. But because it generates real back-end code — Express routes, file handling, shell calls — the security stakes are higher than a front-end-only tool. Here is what to check before Bolt code goes to a real server.</p>
+  
+  <h2>The Bolt blind spot: real back-end power</h2>
+  <p>Front-end tools can mostly only leak data. Bolt writes server code that can run commands, read files, and talk to databases — so a mistake here can hand an attacker the whole machine, not just the data.</p>
+
+  <h2>1. Command execution from user input</h2>
+  <p>If a Bolt route passes request data into a shell, that is remote code execution:</p>
+  <pre><code><span class="tag">Vulnerable</span>app.get("/convert", (req, res) => {
+  exec(`convert ${req.query.file} out.png`); // attacker controls the command
+});</code></pre>
+  <p>Never build a shell command from input. Use a library API, and if you must call a binary, pass arguments as an array with no shell.</p>
+
+  <h2>2. Wide-open CORS</h2>
+  <p>Bolt frequently enables CORS for everything with <code>app.use(cors())</code>, which allows any website to call your API. Restrict it to your own domains.</p>
+
+  <h2>3. Path traversal in file routes</h2>
+  <p>A download or read route that takes a filename from the request can be tricked into serving <code>../../.env</code>. Whitelist filenames and resolve paths safely.</p>
+
+  <h2>4. Secrets and .env shipped together</h2>
+  <p>Because Bolt bundles everything, it is easy to commit the <code>.env</code> or inline keys. Keep secrets in environment variables and add <code>.env</code> to <code>.gitignore</code>.</p>
+
+  <h2>5. No input validation or rate limiting</h2>
+  <p>Validate every request body, and rate-limit routes that are expensive or write data.</p>
+  <div class="callout">
+    <h3>Scan your Bolt.new server code</h3>
+    <p>Paste a route or your whole server file into AIScan — it flags command execution, open CORS and path traversal with the exact line and fix.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Is Bolt.new code safe to deploy?</summary><p>Bolt.new generates real back-end code, so the risk is higher than front-end tools. It commonly leaves command execution, wide-open CORS and path traversal in place. Review and scan before deploying to a real server.</p></details>
+    <details><summary>Why is server-side AI code riskier?</summary><p>Front-end code can mostly only leak data, but server code can run commands, read files and access your database. A single unvalidated input in a server route can compromise the whole machine.</p></details>
+    <details><summary>How do I secure a Bolt.new app?</summary><p>Never pass user input into shell commands, restrict CORS to your domains, whitelist filenames in file routes, keep secrets in env vars with .env gitignored, and validate and rate-limit requests.</p></details>
+  </div>
+  <div class="related">
+    <h3>Related guides</h3>
+    <a href="is-cursor-generated-code-secure.html">Is Cursor-generated code secure? →</a>
+    <a href="is-v0-code-secure.html">Is v0 code secure? →</a>
+    <a href="how-to-fix-exposed-api-key.html">How to fix an exposed API key →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a></p>
+</footer>
+</body>
+</html>

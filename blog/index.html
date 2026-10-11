@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Code Security Guides | AIScan</title>
+<meta name="description" content="Guides on securing AI-generated code from Cursor, v0, Lovable, Bolt and Claude — the common vulnerabilities and how to fix them before you ship.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  .posts{display:flex;flex-direction:column;gap:2px;margin-top:10px}
+  .post{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:18px 20px;margin-bottom:12px;transition:.15s}
+  .post:hover{border-color:var(--accent)}
+  .post h2{font-family:var(--font-display);font-size:19px;margin:0 0 6px;color:var(--fg)}
+  .post p{margin:0;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">Guides</div>
+  <h1>AI code security guides</h1>
+  <p class="lead">Practical, no-fluff guides on securing the code your AI tools generate — the holes they leave behind and the exact fixes.</p>
+  <div class="posts">
+    <a class="post" href="is-cursor-generated-code-secure.html"><h2>Is Cursor-generated code secure?</h2><p>The 7 security holes Cursor leaves behind — with examples and fixes.</p></a>
+    <a class="post" href="is-v0-code-secure.html"><h2>Is v0 code secure?</h2><p>The client-vs-server trap, exposed NEXT_PUBLIC keys, and unprotected API routes.</p></a>
+    <a class="post" href="is-lovable-app-secure.html"><h2>Is a Lovable app secure?</h2><p>Row Level Security, the service_role key, and the Supabase checklist.</p></a>
+    <a class="post" href="is-bolt-new-code-secure.html"><h2>Is Bolt.new code secure?</h2><p>Command execution, open CORS and path traversal in Bolt's back-end code.</p></a>
+    <a class="post" href="claude-generated-code-vulnerabilities.html"><h2>Claude-generated code vulnerabilities</h2><p>Why Claude's code is only as secure as your prompt — and what to verify.</p></a>
+    <a class="post" href="how-to-fix-exposed-api-key.html"><h2>How to fix an exposed API key</h2><p>Rotate, move to env vars, and scrub it from Git history — step by step.</p></a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a></p>
+</footer>
+</body>
+</html>

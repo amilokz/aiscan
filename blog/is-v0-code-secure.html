@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Is v0 Code Secure? Security Checklist for v0-Generated Apps | AIScan</title>
+<meta name="description" content="v0 builds polished React and Next.js UIs fast, but it does not secure your API routes, env vars, or data access. Here is what to check before you ship a v0 app.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/is-v0-code-secure.html">
+<meta property="og:title" content="Is v0 Code Secure? A Checklist for v0-Generated Next.js Apps">
+<meta property="og:description" content="v0 builds polished React and Next.js UIs fast, but it does not secure your API routes, env vars, or data access. Here is what to check before you ship a v0 app.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Is v0 Code Secure? A Checklist for v0-Generated Next.js Apps","description":"v0 builds polished React and Next.js UIs fast, but it does not secure your API routes, env vars, or data access. Here is what to check before you ship a v0 app.","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/is-v0-code-secure.html"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is v0 code production-ready?","acceptedAnswer":{"@type":"Answer","text":"v0 produces production-quality UI, but not production-ready security. It does not add authentication to API routes, validate input, or keep secrets off the client by default. Review those before deploying."}},{"@type":"Question","name":"Are NEXT_PUBLIC environment variables safe?","acceptedAnswer":{"@type":"Answer","text":"Only for genuinely public values. Anything prefixed NEXT_PUBLIC_ is compiled into the browser bundle and visible to every visitor, so never put API keys, database URLs or tokens there."}},{"@type":"Question","name":"How do I secure a v0 Next.js app?","acceptedAnswer":{"@type":"Answer","text":"Move secrets to server-only env vars, add an auth check to every mutating API route, validate all input, use parameterized database queries, and rate-limit expensive routes. Scan the code first to find what is missing."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">AI code security</div>
+  <h1>Is v0 Code Secure? A Checklist for v0-Generated Next.js Apps</h1>
+  <div class="meta">7 min read · Updated 2026</div>
+  <p class="lead">v0 by Vercel is excellent at turning a prompt into a clean React or Next.js interface. But a pretty UI hides where the real risk lives: the API routes behind it, the environment variables, and the line between what runs on the server and what ships to the browser. Here is the security checklist for a v0 app before you deploy.</p>
+  
+  <h2>The v0 blind spot: client vs server</h2>
+  <p>v0 generates React components, and React runs in the browser. The danger is that anything the component can see, the user can see — including secrets. The most common v0 mistake is calling a database or a paid API directly from a client component, or exposing a key through a <code>NEXT_PUBLIC_</code> variable.</p>
+  <pre><code><span class="tag">Vulnerable</span>// a client component shipping a secret to every visitor
+const key = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+const res = await fetch("https://api.openai.com/v1/...", {
+  headers: { Authorization: `Bearer ${key}` }
+});</code></pre>
+  <p>Any <code>NEXT_PUBLIC_</code> value is baked into the JavaScript bundle. Move the call to a server route (<code>app/api/.../route.ts</code>) and keep the key in a plain server-only env var.</p>
+
+  <h2>1. Unprotected API routes</h2>
+  <p>v0 will scaffold an API route that does the job, but it rarely adds an auth check. A route that mutates data must verify the session first:</p>
+  <pre class="ok"><code><span class="tag good">Safe</span>export async function POST(req) {
+  const session = await getSession(req);
+  if (!session) return new Response("Unauthorized", { status: 401 });
+  // ...
+}</code></pre>
+
+  <h2>2. Secrets in NEXT_PUBLIC variables</h2>
+  <p>Only values that are genuinely public (a published site URL, a public analytics ID) belong in <code>NEXT_PUBLIC_</code>. API keys, database URLs and tokens must be server-only env vars, read inside server components or route handlers.</p>
+
+  <h2>3. No input validation on routes</h2>
+  <p>User input arriving at an API route should be validated (shape, type, length) before it touches a database or an external service. Unvalidated input is how injection and abuse get in.</p>
+
+  <h2>4. SQL and NoSQL injection</h2>
+  <p>If your v0 app talks to a database, make sure queries use parameters, not string building. This is identical to the <a href="is-cursor-generated-code-secure.html">Cursor</a> case — AI loves to concatenate.</p>
+
+  <h2>5. Missing rate limiting on expensive routes</h2>
+  <p>A v0 route that calls a paid AI API with no rate limit is a bill waiting to happen. Add a simple per-IP limit before the expensive call.</p>
+  <div class="callout">
+    <h3>Paste your v0 route and check it</h3>
+    <p>AIScan runs 15 security checks in your browser — it flags exposed keys, missing auth and injection with the exact line and fix. Nothing is uploaded.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Is v0 code production-ready?</summary><p>v0 produces production-quality UI, but not production-ready security. It does not add authentication to API routes, validate input, or keep secrets off the client by default. Review those before deploying.</p></details>
+    <details><summary>Are NEXT_PUBLIC environment variables safe?</summary><p>Only for genuinely public values. Anything prefixed NEXT_PUBLIC_ is compiled into the browser bundle and visible to every visitor, so never put API keys, database URLs or tokens there.</p></details>
+    <details><summary>How do I secure a v0 Next.js app?</summary><p>Move secrets to server-only env vars, add an auth check to every mutating API route, validate all input, use parameterized database queries, and rate-limit expensive routes. Scan the code first to find what is missing.</p></details>
+  </div>
+  <div class="related">
+    <h3>Related guides</h3>
+    <a href="is-cursor-generated-code-secure.html">Is Cursor-generated code secure? →</a>
+    <a href="is-lovable-app-secure.html">Is a Lovable app secure? →</a>
+    <a href="how-to-fix-exposed-api-key.html">How to fix an exposed API key →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a></p>
+</footer>
+</body>
+</html>

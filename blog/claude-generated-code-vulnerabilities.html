@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Claude-Generated Code: Vulnerabilities to Check Before Shipping | AIScan</title>
+<meta name="description" content="Claude writes strong code and will add security when you ask — but only when you ask. Here are the vulnerabilities to check in Claude-generated code before deploying.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/claude-generated-code-vulnerabilities.html">
+<meta property="og:title" content="Claude-Generated Code: What to Check Before You Ship">
+<meta property="og:description" content="Claude writes strong code and will add security when you ask — but only when you ask. Here are the vulnerabilities to check in Claude-generated code before deploying.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Claude-Generated Code: What to Check Before You Ship","description":"Claude writes strong code and will add security when you ask — but only when you ask. Here are the vulnerabilities to check in Claude-generated code before deploying.","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/claude-generated-code-vulnerabilities.html"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Claude-generated code secure?","acceptedAnswer":{"@type":"Answer","text":"Claude writes some of the most secure-by-default code among AI coders, especially when you ask for security explicitly. But if your prompt was only about features, the code is correct without being hardened — so review it before shipping."}},{"@type":"Question","name":"How do I get more secure code from Claude?","acceptedAnswer":{"@type":"Answer","text":"Ask for it directly. Add requirements like hashed passwords, input validation, parameterized queries and auth checks to your prompt, and then ask Claude to review the result for vulnerabilities and fix them."}},{"@type":"Question","name":"What should I check in Claude-generated code?","acceptedAnswer":{"@type":"Answer","text":"Security you never requested, leftover test secrets, non-Claude snippets mixed in, string-built queries, and error handling that leaks details to the client."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">AI code security</div>
+  <h1>Claude-Generated Code: What to Check Before You Ship</h1>
+  <div class="meta">6 min read · Updated 2026</div>
+  <p class="lead">Of the popular AI coders, Claude tends to write some of the cleanest, most secure-by-default code — especially when you ask it to. But "when you ask" is the key phrase. If your prompt was about features and never mentioned security, Claude optimized for the feature. Here is what to verify before Claude-generated code goes live.</p>
+  
+  <h2>The Claude pattern: as secure as your prompt</h2>
+  <p>Claude follows intent closely. Ask for "a login system" and you get a working login; ask for "a secure login system with hashed passwords and rate limiting" and you get noticeably safer code. The gap appears when security was never part of the ask — the generated code is correct but not hardened, and nothing flags that to you.</p>
+
+  <h2>1. Security that was never requested</h2>
+  <p>Re-read your prompts. If you never asked for auth, validation, or safe queries, assume they are missing or minimal, even if the code looks tidy. The fix is often as simple as asking Claude to "review this for security vulnerabilities and fix them."</p>
+
+  <h2>2. Secrets from earlier prototyping</h2>
+  <p>During quick iteration it is common to paste a real key "just to test." Those survive into the final code. Search for keys and tokens and move them to env vars.</p>
+
+  <h2>3. Copy-pasted snippets Claude did not write</h2>
+  <p>Mixed codebases are the real risk: the Claude-written parts are clean, but the Stack Overflow snippet you dropped in next to them is not. Scan the whole file, not just the AI parts.</p>
+
+  <h2>4. Query building under time pressure</h2>
+  <p>Even good models will concatenate a query if the surrounding code does. Confirm every database call uses parameters.</p>
+
+  <h2>5. Error handling that leaks details</h2>
+  <p>Returning raw error messages or stack traces to the client leaks file paths and sometimes secrets. Log errors server-side and return a generic message.</p>
+  <div class="callout">
+    <h3>Verify your Claude-generated code</h3>
+    <p>Paste your code into AIScan for a fast 15-point security check — it catches the issues that slip through when security was not part of the prompt.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Is Claude-generated code secure?</summary><p>Claude writes some of the most secure-by-default code among AI coders, especially when you ask for security explicitly. But if your prompt was only about features, the code is correct without being hardened — so review it before shipping.</p></details>
+    <details><summary>How do I get more secure code from Claude?</summary><p>Ask for it directly. Add requirements like hashed passwords, input validation, parameterized queries and auth checks to your prompt, and then ask Claude to review the result for vulnerabilities and fix them.</p></details>
+    <details><summary>What should I check in Claude-generated code?</summary><p>Security you never requested, leftover test secrets, non-Claude snippets mixed in, string-built queries, and error handling that leaks details to the client.</p></details>
+  </div>
+  <div class="related">
+    <h3>Related guides</h3>
+    <a href="is-cursor-generated-code-secure.html">Is Cursor-generated code secure? →</a>
+    <a href="is-v0-code-secure.html">Is v0 code secure? →</a>
+    <a href="how-to-fix-exposed-api-key.html">How to fix an exposed API key →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a></p>
+</footer>
+</body>
+</html>

@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
 <style>
   :root{
     --bg:#0b0e14; --surface:#141a24; --surface-2:#1b2230; --line:#28303f;
@@ -141,6 +142,13 @@ password_verify($input, $hash);</code></pre>
     <details><summary>What are the most common security issues in AI-generated code?</summary><p>SQL injection from string-built queries, hardcoded API keys, missing authentication on admin routes, XSS from raw HTML output, weak MD5 password hashing, debug mode left on, and wide-open CORS.</p></details>
     <details><summary>How do I check my AI-generated app for vulnerabilities?</summary><p>Paste your code into a scanner like <a href="/#scan">AIScan</a>, which flags the common issues with the exact line and a fix, or have a developer review authentication, database queries, and secret handling before launch.</p></details>
     <details><summary>Does this apply to v0, Lovable, Claude and Bolt too?</summary><p>Yes. Every AI code generator shares the same blind spot — it optimizes for working code, not safe code — so the same seven holes appear across all of them.</p></details>
+  </div>
+  <div class="related">
+    <h3>Related guides</h3>
+    <a href="is-v0-code-secure.html">Is v0 code secure? →</a>
+    <a href="is-lovable-app-secure.html">Is a Lovable app secure? →</a>
+    <a href="is-bolt-new-code-secure.html">Is Bolt.new code secure? →</a>
+    <a href="how-to-fix-exposed-api-key.html">How to fix an exposed API key →</a>
   </div>
 </article>
 

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Is a Lovable App Secure? Supabase & Security Checklist | AIScan</title>
+<meta name="description" content="Lovable ships full-stack apps with Supabase fast, but Row Level Security, exposed keys and client-side data access are easy to get wrong. Here is what to check.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/is-lovable-app-secure.html">
+<meta property="og:title" content="Is a Lovable App Secure? The Supabase Checklist">
+<meta property="og:description" content="Lovable ships full-stack apps with Supabase fast, but Row Level Security, exposed keys and client-side data access are easy to get wrong. Here is what to check.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Is a Lovable App Secure? The Supabase Checklist","description":"Lovable ships full-stack apps with Supabase fast, but Row Level Security, exposed keys and client-side data access are easy to get wrong. Here is what to check.","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/is-lovable-app-secure.html"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Are Lovable apps secure by default?","acceptedAnswer":{"@type":"Answer","text":"Not fully. Lovable builds working full-stack apps, but security depends on Supabase settings like Row Level Security that the generated code does not always enable. Without RLS, your public anon key exposes the whole database."}},{"@type":"Question","name":"Is the Supabase anon key safe to expose?","acceptedAnswer":{"@type":"Answer","text":"Yes, the anon key is designed to be public — but only if Row Level Security is enabled on every table. The service_role key is different and must never reach the browser."}},{"@type":"Question","name":"How do I secure a Lovable app?","acceptedAnswer":{"@type":"Answer","text":"Enable Row Level Security with per-user policies on every table, keep the service_role key server-side only, move hardcoded secrets to env vars, add auth to edge functions, and validate input before writes."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">AI code security</div>
+  <h1>Is a Lovable App Secure? The Supabase Checklist</h1>
+  <div class="meta">7 min read · Updated 2026</div>
+  <p class="lead">Lovable builds full-stack apps end to end, usually on Supabase, and it is genuinely impressive how fast you get a working product. The catch is that "working" and "locked down" are different things — and with Supabase, the security lives in settings the generated code does not always configure. Here is what to check.</p>
+  
+  <h2>The Lovable blind spot: the database is public by design</h2>
+  <p>Supabase exposes your database over an API that the browser talks to directly, using an <em>anon key</em> that is meant to be public. That is fine — <strong>as long as Row Level Security (RLS) is on</strong>. If RLS is off, that public key can read and write every row in every table. This is the single biggest Lovable risk.</p>
+  <pre><code><span class="tag">Vulnerable</span>-- RLS disabled: the anon key can read every user's data
+select * from profiles;  -- returns everyone, from the browser</code></pre>
+  <pre class="ok"><code><span class="tag good">Safe</span>alter table profiles enable row level security;
+create policy "own rows only" on profiles
+  for select using (auth.uid() = user_id);</code></pre>
+
+  <h2>1. Row Level Security turned off</h2>
+  <p>Check every table in your Supabase dashboard: RLS must be <em>enabled</em>, with a policy that limits each user to their own rows. The anon key is public, so RLS is your actual access control.</p>
+
+  <h2>2. The service_role key on the client</h2>
+  <p>Supabase has a second key, <code>service_role</code>, that bypasses RLS entirely. It must never appear in front-end code or a <code>NEXT_PUBLIC_</code> variable — only in server-side functions. If it is in the browser bundle, rotate it now.</p>
+
+  <h2>3. Secrets hardcoded in the generated code</h2>
+  <p>Lovable sometimes inlines keys instead of using env vars. Search your project for anything that looks like a key or token and move it to environment variables.</p>
+
+  <h2>4. Edge functions without auth</h2>
+  <p>Server functions that change data need to verify the user, not trust the request. Add an auth check at the top of each one.</p>
+
+  <h2>5. Input validation before writes</h2>
+  <p>Validate data before inserting it, even with RLS on — RLS controls <em>who</em> can write, not <em>what</em> they write.</p>
+  <div class="callout">
+    <h3>Check your Lovable code for exposed keys</h3>
+    <p>Paste your front-end or function code into AIScan — it flags service_role keys, hardcoded secrets and missing checks with the exact line. RLS you set in Supabase; the rest AIScan catches.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Are Lovable apps secure by default?</summary><p>Not fully. Lovable builds working full-stack apps, but security depends on Supabase settings like Row Level Security that the generated code does not always enable. Without RLS, your public anon key exposes the whole database.</p></details>
+    <details><summary>Is the Supabase anon key safe to expose?</summary><p>Yes, the anon key is designed to be public — but only if Row Level Security is enabled on every table. The service_role key is different and must never reach the browser.</p></details>
+    <details><summary>How do I secure a Lovable app?</summary><p>Enable Row Level Security with per-user policies on every table, keep the service_role key server-side only, move hardcoded secrets to env vars, add auth to edge functions, and validate input before writes.</p></details>
+  </div>
+  <div class="related">
+    <h3>Related guides</h3>
+    <a href="is-v0-code-secure.html">Is v0 code secure? →</a>
+    <a href="is-cursor-generated-code-secure.html">Is Cursor-generated code secure? →</a>
+    <a href="how-to-fix-exposed-api-key.html">How to fix an exposed API key →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a></p>
+</footer>
+</body>
+</html>
