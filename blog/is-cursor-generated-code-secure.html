@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Is Cursor-Generated Code Secure? The 7 Holes to Check First | AIScan</title>
+<meta name="description" content="Cursor ships features fast but quietly leaves SQL injection, hardcoded keys and open admin routes behind. Here are the 7 security holes to check in AI-generated code — with examples and fixes.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/is-cursor-generated-code-secure.html">
+<meta property="og:title" content="Is Cursor-Generated Code Secure?">
+<meta property="og:description" content="The 7 security holes AI code generators leave behind — and how to fix them before you ship.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --bg:#0b0e14; --surface:#141a24; --surface-2:#1b2230; --line:#28303f;
+    --fg:#e8ecf3; --muted:#97a2b4; --faint:#6b7585; --accent:#ffb020; --accent-ink:#2a1d00;
+    --crit:#ff5d5d; --ok:#36d399;
+    --font-display:'Sora',system-ui,sans-serif; --font-body:'IBM Plex Sans',system-ui,sans-serif; --font-mono:'JetBrains Mono',ui-monospace,monospace;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:740px;margin:0 auto;padding-inline:20px}
+  a{color:var(--accent)}
+  header{border-bottom:1px solid var(--line);background:rgba(11,14,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .nav{display:flex;align-items:center;height:58px;max-width:960px;margin:0 auto;padding-inline:20px}
+  .brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:700;font-size:17px;text-decoration:none;color:var(--fg)}
+  .brand svg{width:24px;height:24px}
+  .nav .cta{margin-left:auto;font-family:var(--font-body);font-weight:600;background:var(--accent);color:var(--accent-ink);padding:8px 14px;border-radius:9px;text-decoration:none;font-size:14px}
+  article{padding-block:40px 60px}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  h1{font-family:var(--font-display);font-weight:800;font-size:clamp(28px,5.5vw,42px);line-height:1.12;letter-spacing:-.02em;margin:0 0 16px;text-wrap:balance}
+  .meta{color:var(--faint);font-size:14px;font-family:var(--font-mono);margin-bottom:28px}
+  .lead{font-size:19px;color:var(--muted)}
+  article h2{font-family:var(--font-display);font-weight:700;font-size:25px;letter-spacing:-.01em;margin:40px 0 10px;text-wrap:balance}
+  article h3{font-family:var(--font-display);font-weight:600;font-size:18px;margin:26px 0 6px}
+  p{margin:14px 0}
+  ul,ol{color:var(--fg);padding-left:22px}
+  li{margin:7px 0}
+  code{font-family:var(--font-mono);font-size:.86em;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:#ffd9a8}
+  pre{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--crit);border-radius:10px;padding:14px 16px;overflow-x:auto;margin:14px 0}
+  pre.ok{border-left-color:var(--ok)}
+  pre code{background:none;border:none;padding:0;color:var(--fg);font-size:13px;line-height:1.6}
+  .tag{font-family:var(--font-mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--crit);display:block;margin-bottom:6px}
+  .tag.good{color:var(--ok)}
+  .callout{background:linear-gradient(180deg,var(--surface),var(--surface-2));border:1px solid var(--accent);border-radius:14px;padding:22px;margin:34px 0}
+  .callout h3{margin:0 0 8px;font-size:19px}
+  .callout p{margin:0 0 14px;color:var(--muted)}
+  .callout a{display:inline-block;background:var(--accent);color:var(--accent-ink);font-weight:600;padding:11px 18px;border-radius:10px;text-decoration:none}
+  .faq{border-top:1px solid var(--line);margin-top:20px}
+  .faq details{border-bottom:1px solid var(--line);padding:14px 0}
+  .faq summary{cursor:pointer;font-weight:600;font-family:var(--font-display)}
+  .faq p{color:var(--muted)}
+  footer{border-top:1px solid var(--line);padding-block:26px;color:var(--faint);font-size:13px}
+  footer a{color:var(--muted)}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Is Cursor-Generated Code Secure? The 7 Holes to Check First","description":"The security holes AI code generators leave behind, with examples and fixes.","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/is-cursor-generated-code-secure.html"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is code generated by Cursor safe to deploy?","acceptedAnswer":{"@type":"Answer","text":"Cursor writes working code, but it does not run a security review. AI generators frequently produce SQL injection, hardcoded secrets, and unprotected admin routes. Always scan and review AI-generated code before deploying it to production."}},
+{"@type":"Question","name":"What are the most common security issues in AI-generated code?","acceptedAnswer":{"@type":"Answer","text":"The most common are SQL injection from string-built queries, hardcoded API keys, missing authentication on admin or dangerous routes, cross-site scripting from raw HTML output, weak password hashing with MD5, debug mode left on, and wide-open CORS."}},
+{"@type":"Question","name":"How do I check my AI-generated app for vulnerabilities?","acceptedAnswer":{"@type":"Answer","text":"Paste your code into a scanner like AIScan, which flags common vibe-coding vulnerabilities with the exact line and a fix, or have a developer review the authentication, database queries, and secret handling before launch."}}
+]}
+</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      AIScan
+    </a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+
+<article class="wrap">
+  <div class="eyebrow">AI code security</div>
+  <h1>Is Cursor-Generated Code Secure? The 7 Holes to Check First</h1>
+  <div class="meta">8 min read · Updated 2026</div>
+
+  <p class="lead">Cursor is brilliant at turning a prompt into a working feature. What it does not do is stop and ask, "would an attacker get in here?" That gap is where real apps leak. If you are shipping code you generated with Cursor — or v0, Lovable, Claude or Bolt — here are the seven security holes that show up again and again, with the exact fix for each.</p>
+
+  <h2>Why AI-generated code is risky by default</h2>
+  <p>An AI generator optimizes for code that <em>runs</em>, not code that is <em>safe</em>. It learned from millions of public repositories — including the insecure ones — and it has no view of your deployment, your secrets, or who can reach which route. So it will happily concatenate user input into a SQL query, print a hardcoded API key, or leave an admin page wide open, because all of those "work" in the demo.</p>
+  <p>None of this means Cursor is bad. It means the review step that a senior engineer would do is still your job. Here is what to look for.</p>
+
+  <h2>1. SQL injection</h2>
+  <p>The single most common hole. The AI builds a query by gluing user input into a string:</p>
+  <pre><code><span class="tag">Vulnerable</span>$email = $_POST['email'];
+$conn->query("SELECT * FROM users WHERE email='$email'");</code></pre>
+  <p>An attacker sends <code>' OR '1'='1</code> as the email and reads your entire users table. The fix is a prepared statement with bound parameters:</p>
+  <pre class="ok"><code><span class="tag good">Safe</span>$stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+$stmt->bind_param("s", $email);
+$stmt->execute();</code></pre>
+
+  <h2>2. Hardcoded API keys and secrets</h2>
+  <p>Vibe-coded apps are full of live keys pasted straight into the source:</p>
+  <pre><code><span class="tag">Vulnerable</span>const stripe = new Stripe("sk_live_51H8xQ2...realkey...");</code></pre>
+  <p>Once that is committed to Git or shipped to the browser, anyone can copy it and run up charges. Move every secret to an environment variable, and rotate any key that has already been exposed — assume it is burned.</p>
+
+  <h2>3. Admin pages with no login check</h2>
+  <p>AI often builds the admin dashboard and the login page as two separate things, and forgets to put the lock between them. The result: <code>yoursite.com/admin/products.php</code> loads for anyone who types the URL. Every admin and every state-changing route needs an authentication guard at the top:</p>
+  <pre class="ok"><code><span class="tag good">Safe</span>if (!isset($_SESSION['admin_logged_in'])) {
+  header("Location: login.php");
+  exit();
+}</code></pre>
+
+  <h2>4. Cross-site scripting (XSS)</h2>
+  <p>Rendering user input as raw HTML lets an attacker inject scripts that steal your users' sessions:</p>
+  <pre><code><span class="tag">Vulnerable</span>profile.innerHTML = user.bio;</code></pre>
+  <p>Use <code>textContent</code> in the browser, or <code>htmlspecialchars()</code> in PHP, so the input is shown as text, never executed.</p>
+
+  <h2>5. Weak password hashing</h2>
+  <p>If you see <code>md5()</code> or <code>sha1()</code> near a password, treat stored passwords as plaintext — both are cracked in seconds. Use a real password hash:</p>
+  <pre class="ok"><code><span class="tag good">Safe</span>$hash = password_hash($password, PASSWORD_DEFAULT); // bcrypt
+password_verify($input, $hash);</code></pre>
+
+  <h2>6. Debug mode and default database credentials</h2>
+  <p>Two config mistakes that ship constantly: debug mode left on in production (which leaks stack traces, file paths, and sometimes secrets), and a database connection using the <code>root</code> user with a blank password. Turn debug off before launch, and give the app a dedicated DB user with a strong password pulled from the environment.</p>
+
+  <h2>7. Wide-open CORS</h2>
+  <p>A header like <code>Access-Control-Allow-Origin: *</code> lets any website on the internet call your API with your users' credentials. Set CORS to an explicit allowlist of the domains you actually control.</p>
+
+  <div class="callout">
+    <h3>Check your own code in 10 seconds</h3>
+    <p>AIScan runs these 15 checks in your browser — paste a file or your whole <code>conn.php</code> and it flags every issue with the exact line and the fix. Nothing is uploaded.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+
+  <h2>The honest bottom line</h2>
+  <p>Cursor-generated code is secure enough to prototype and demo, and not secure enough to deploy without a review. The good news is that the holes are predictable — the same seven show up in almost every AI-built app, and each has a well-known fix. Run a scan, fix the criticals, and you are ahead of most apps that ship today.</p>
+
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Is code generated by Cursor safe to deploy?</summary><p>It is safe to prototype with, not to deploy as-is. Cursor writes working code but runs no security review, so it regularly produces SQL injection, hardcoded secrets, and unprotected routes. Scan and review before production.</p></details>
+    <details><summary>What are the most common security issues in AI-generated code?</summary><p>SQL injection from string-built queries, hardcoded API keys, missing authentication on admin routes, XSS from raw HTML output, weak MD5 password hashing, debug mode left on, and wide-open CORS.</p></details>
+    <details><summary>How do I check my AI-generated app for vulnerabilities?</summary><p>Paste your code into a scanner like <a href="/#scan">AIScan</a>, which flags the common issues with the exact line and a fix, or have a developer review authentication, database queries, and secret handling before launch.</p></details>
+    <details><summary>Does this apply to v0, Lovable, Claude and Bolt too?</summary><p>Yes. Every AI code generator shares the same blind spot — it optimizes for working code, not safe code — so the same seven holes appear across all of them.</p></details>
+  </div>
+</article>
+
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a></p>
+</footer>
+</body>
+</html>
