@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Coding Tools Security: Ratings & Common Risks (2026) | AIScan</title>
+<meta name="description" content="How secure is the code from Cursor, v0, Lovable, Bolt, Claude, Windsurf, Replit and Copilot? A plain-English security rundown of each AI coding tool and what to check.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/ai-coding-tools-security.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  .tool{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:16px 18px;margin-bottom:12px}
+  .tool h3{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .pill{font-family:var(--font-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:5px;color:#0b0e14}
+  .tool p{margin:6px 0 0;color:var(--muted);font-size:14px}
+  .tool a{font-size:13px}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"AI Coding Tools Security: Ratings & Common Risks","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/ai-coding-tools-security.html"}</script>
+</head>
+<body>
+<header><div class="nav">
+  <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+  <a class="cta" href="/#scan" style="margin-left:auto">Scan my code</a>
+</div></header>
+<article class="wrap">
+  <div class="eyebrow">Directory</div>
+  <h1>AI Coding Tools Security: What to Watch For</h1>
+  <p class="lead">Every AI coding tool shares one blind spot — it optimizes for code that <em>works</em>, not code that's <em>safe</em>. Here's a plain-English rundown of the popular tools, the risk that shows up most with each, and where to read more. The "exposure" label reflects how much back-end power the tool gives you, not the quality of the company.</p>
+
+  <div class="tool"><h3>Cursor <span class="pill" style="background:#ff954a">Medium exposure</span></h3><p>General-purpose; writes whatever you ask across the stack. Most common issue: SQL injection and hardcoded keys in back-end code.</p><a href="is-cursor-generated-code-secure.html">Read the Cursor security guide →</a></div>
+  <div class="tool"><h3>v0 (Vercel) <span class="pill" style="background:#ffd24a">Lower exposure</span></h3><p>Front-end focused (React/Next.js). Main risk: secrets leaking through <code>NEXT_PUBLIC_</code> vars and unprotected API routes.</p><a href="is-v0-code-secure.html">Read the v0 security guide →</a></div>
+  <div class="tool"><h3>Lovable <span class="pill" style="background:#ff954a">Medium exposure</span></h3><p>Full-stack on Supabase. Biggest risk: Row Level Security left off, and the service_role key reaching the browser.</p><a href="is-lovable-app-secure.html">Read the Lovable security guide →</a></div>
+  <div class="tool"><h3>Bolt.new <span class="pill" style="background:#ff5d5d">Higher exposure</span></h3><p>Full Node back-ends. Watch for command execution, open CORS and path traversal in server routes.</p><a href="is-bolt-new-code-secure.html">Read the Bolt.new security guide →</a></div>
+  <div class="tool"><h3>Claude <span class="pill" style="background:#ffd24a">Lower exposure</span></h3><p>Tends to write secure-by-default code — but only when you ask. If security wasn't in your prompt, verify it was added.</p><a href="claude-generated-code-vulnerabilities.html">Read the Claude security guide →</a></div>
+  <div class="tool"><h3>Windsurf <span class="pill" style="background:#ff954a">Medium exposure</span></h3><p>Agentic IDE across the stack — same core risks as Cursor: injection, secrets, missing auth. Review back-end output closely.</p><a href="/#scan">Scan Windsurf code →</a></div>
+  <div class="tool"><h3>Replit Agent <span class="pill" style="background:#ff5d5d">Higher exposure</span></h3><p>Builds and hosts full apps. Check for exposed secrets in the environment, open databases, and unprotected routes before going public.</p><a href="/#scan">Scan Replit code →</a></div>
+  <div class="tool"><h3>GitHub Copilot <span class="pill" style="background:#ffd24a">Lower exposure</span></h3><p>Autocomplete, so risk depends on what you accept. It will happily suggest a string-built query — confirm each suggestion is safe.</p><a href="/#scan">Scan Copilot code →</a></div>
+
+  <div class="callout">
+    <h3>Whichever tool you use, scan before you ship</h3>
+    <p>AIScan runs 15 security checks on your code in the browser — the same holes, whatever generated them.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Which AI coding tool is the most secure?</summary><p>No tool is secure by default — they all optimize for working code. Front-end tools like v0 leak less because they expose less back-end power, while full-stack tools like Bolt and Replit can do more damage if misused. The real variable is whether you review and scan the output.</p></details>
+    <details><summary>Do I still need to review AI-generated code?</summary><p>Yes. Every tool here can produce insecure code. Review authentication, database queries and secret handling, and run a scan before deploying.</p></details>
+  </div>
+</article>
+<footer class="wrap"><p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a></p></footer>
+</body>
+</html>

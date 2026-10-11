@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>.env Checker — Find Secrets You Should Not Commit | AIScan</title>
+<meta name="description" content="Paste your .env file and see which values are real secrets you must keep out of Git. Runs in your browser — nothing is uploaded.">
+<link rel="canonical" href="https://aiscan.akclnt.com/tools/env-checker.html">
+<meta property="og:title" content=".env Secret Checker">
+<meta property="og:description" content="Paste your .env file and see which values are real secrets you must keep out of Git. Runs in your browser — nothing is uploaded.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../blog/style.css">
+<link rel="stylesheet" href="tools.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":".env secret checker","applicationCategory":"DeveloperApplication","operatingSystem":"Any (browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste your .env file and see which values are real secrets you must keep out of Git. Runs in your browser — nothing is uploaded."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it safe to paste my .env here?","acceptedAnswer":{"@type":"Answer","text":"Yes. The check runs entirely in your browser with JavaScript; nothing is uploaded or stored. You can disconnect from the internet and it still works."}},{"@type":"Question","name":"Should I ever commit a .env file?","acceptedAnswer":{"@type":"Answer","text":"No. Commit a .env.example with placeholder values so teammates know which variables are needed, and keep the real .env git-ignored. Store production secrets in your host environment settings."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">Free tool</div>
+  <h1>.env Secret Checker</h1>
+  <p class="lead">Paste your <code>.env</code> (or any KEY=VALUE config) and this tool flags which entries are real secrets that must never reach Git. Everything runs in your browser — nothing is sent anywhere.</p>
+<div class="tool">
+  <span class="lbl">Paste your .env</span>
+  <textarea class="field" id="in" placeholder="OPENAI_API_KEY=sk-...
+DATABASE_URL=postgres://user:pass@host/db
+APP_NAME=My App"></textarea>
+  <div class="btnrow"><button class="btn btn-accent" id="run">Check</button></div>
+  <div id="out"></div>
+</div>
+<h2>What it checks</h2>
+<p>It scans each line for values that look like real API keys and tokens (Stripe, AWS, Google, GitHub, Slack, SendGrid, JWTs and database connection strings), and for key names that imply a secret — <code>SECRET</code>, <code>PASSWORD</code>, <code>TOKEN</code>, <code>API_KEY</code>. Placeholder values are treated as safe.</p>
+<h3>The rule</h3>
+<p>No real <code>.env</code> should ever be committed. Keep one <code>.env.example</code> with placeholders, and add <code>.env</code> to your <a href="/tools/gitignore-generator.html">.gitignore</a>.</p>
+  <div class="callout">
+    <h3>Scan your whole app, not just .env</h3>
+    <p>AIScan checks your source code for the same secrets plus SQL injection, open admin routes and more — free, in your browser.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>FAQ</h2>
+  <div class="faq">
+    <details><summary>Is it safe to paste my .env here?</summary><p>Yes. The check runs entirely in your browser with JavaScript; nothing is uploaded or stored. You can disconnect from the internet and it still works.</p></details>
+    <details><summary>Should I ever commit a .env file?</summary><p>No. Commit a .env.example with placeholder values so teammates know which variables are needed, and keep the real .env git-ignored. Store production secrets in your host environment settings.</p></details>
+  </div>
+  <div class="related">
+    <h3>More free tools</h3>
+    <a href="gitignore-generator.html">.gitignore generator →</a>
+    <a href="password-hash-checker.html">Password hash checker →</a>
+    <a href="cors-generator.html">CORS config generator →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a> · <a href="/tools/">All tools</a></p>
+</footer>
+<script>
+var patt=[{re:/(sk|rk|pk)_(live|test)_[0-9a-z]{10,}/i,n:"Stripe key"},{re:/AKIA[0-9A-Z]{16}/,n:"AWS access key"},{re:/AIza[0-9A-Za-z_\-]{20,}/,n:"Google API key"},{re:/gh[pousr]_[0-9A-Za-z]{20,}/,n:"GitHub token"},{re:/xox[baprs]-[0-9A-Za-z-]{10,}/,n:"Slack token"},{re:/SG\.[A-Za-z0-9_\-]{16,}\.[A-Za-z0-9_\-]{16,}/,n:"SendGrid key"},{re:/eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\./,n:"JWT"},{re:/(mysql|postgres(ql)?|mongodb(\+srv)?):\/\/[^:\/\s]+:[^@\/\s]+@/i,n:"DB connection string with password"}];
+var SENS=/(secret|password|passwd|pwd|token|api[_-]?key|private|access[_-]?key|client[_-]?secret|auth)/i;
+function esc(s){return s.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+function run(){var lines=document.getElementById("in").value.split(/\r?\n/),res=[];lines.forEach(function(raw){var l=raw.trim();if(!l||l[0]==="#"||l.indexOf("=")<0)return;var key=l.split("=")[0].trim(),val=l.slice(l.indexOf("=")+1).trim().replace(/^["']|["']$/g,"");var hit=null;patt.forEach(function(p){if(!hit&&p.re.test(l))hit=p.n;});var ph=/^(your|xxx|changeme|<|\.\.\.|example|placeholder|todo)/i.test(val)||val.length<6;if(hit)res.push({t:"crit",m:"<b class=k>"+esc(key)+"</b> looks like a real "+hit+" — never commit this."});else if(SENS.test(key)&&!ph)res.push({t:"crit",m:"<b class=k>"+esc(key)+"</b> holds a secret value — keep it out of Git."});else if(SENS.test(key))res.push({t:"ok",m:"<b class=k>"+esc(key)+"</b> is a secret (placeholder value — fine)."});});var out=document.getElementById("out"),html="";if(!res.length){html='<div class="finditem ok">No obvious secrets detected. Even so, never commit a real .env file.</div>';}else{res.forEach(function(r){html+='<div class="finditem'+(r.t==="ok"?" ok":"")+'">'+r.m+'</div>';});html+='<div class="verdict" style="margin-top:16px">Keep .env out of Git</div><pre class="ok"><code># add to .gitignore\n.env\n.env.*\n!.env.example</code></pre>';}out.innerHTML='<div class="findlist">'+html+'</div>';}
+document.getElementById("run").onclick=run;
+</script>
+</body>
+</html>

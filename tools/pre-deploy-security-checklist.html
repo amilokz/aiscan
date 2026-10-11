@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pre-Deploy Security Checklist for AI-Built Apps | AIScan</title>
+<meta name="description" content="A practical security checklist to run before you deploy an AI-built app. Tick off secrets, auth, database, and config essentials. Progress saved in your browser.">
+<link rel="canonical" href="https://aiscan.akclnt.com/tools/pre-deploy-security-checklist.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  .chk{display:flex;gap:11px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .chk input{width:18px;height:18px;margin-top:2px;accent-color:var(--ok);flex:none}
+  .chk .t{font-size:15px}
+  .chk .d{font-size:13px;color:var(--muted);margin-top:2px}
+  .chk.done .t{text-decoration:line-through;color:var(--faint)}
+  .grp h2{margin-bottom:0}
+  .bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin:6px 0 2px}
+  .bar>div{height:100%;background:var(--ok);width:0;transition:.3s}
+  .prog{font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header><div class="nav">
+  <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+  <div class="links"><a href="/tools/">Tools</a><a href="/blog/">Guides</a><a class="cta" href="/#scan">Scan my code</a></div>
+</div></header>
+<main class="wrap">
+  <div class="eyebrow">Free tool</div>
+  <h1>Pre-Deploy Security Checklist</h1>
+  <p class="lead">Run through this before you ship an AI-built app. It covers the issues that cause almost every early breach. Your progress is saved in your browser.</p>
+  <div class="bar"><div id="barfill"></div></div>
+  <div class="prog" id="prog">0 of 0 done</div>
+  <div id="list"></div>
+
+  <div class="callout">
+    <h3>Let the scanner check the code parts for you</h3>
+    <p>AIScan verifies the code-level items — injection, secrets, weak hashing, open CORS — automatically.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+</main>
+<footer class="wrap"><p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a></p></footer>
+
+<script>
+(function(){
+  var ITEMS=[
+    ['Secrets','No API keys or passwords hardcoded in the source','Every secret comes from an environment variable.'],
+    ['Secrets','.env is in .gitignore and was never committed','Check Git history, not just the working tree.'],
+    ['Secrets','Any exposed key has been rotated','Assume a committed key is already compromised.'],
+    ['Database','All queries use prepared statements / parameters','No user input concatenated into SQL.'],
+    ['Database','App uses a dedicated DB user, not root with blank password','Least-privilege credentials from env.'],
+    ['Auth','Every admin and dangerous route checks the session','No page relies on being "hidden".'],
+    ['Auth','Passwords hashed with bcrypt or Argon2','No MD5 or SHA1.'],
+    ['Input & output','User input is validated before use','Shape, type and length checked.'],
+    ['Input & output','Output is escaped — no raw innerHTML or echoed input','Prevents XSS.'],
+    ['Config','Debug mode is off in production','No stack traces shown to users.'],
+    ['Config','CORS uses an allowlist, not *','Only your own domains.'],
+    ['Config','HTTPS enforced and security headers set','HSTS, X-Frame-Options, CSP.'],
+    ['Config','Dangerous files blocked from the web','.env, .git, backups return 403/404.']
+  ];
+  var list=document.getElementById('list'), saved={};
+  try{saved=JSON.parse(localStorage.getItem('aiscan_chk')||'{}');}catch(e){}
+  var last='';
+  ITEMS.forEach(function(it,i){
+    if(it[0]!==last){var h=document.createElement('div');h.className='grp';h.innerHTML='<h2>'+it[0]+'</h2>';list.appendChild(h);last=it[0];}
+    var row=document.createElement('label'); row.className='chk'+(saved[i]?' done':'');
+    row.innerHTML='<input type="checkbox" data-i="'+i+'"'+(saved[i]?' checked':'')+'><span><span class="t">'+it[1]+'</span><span class="d">'+it[2]+'</span></span>';
+    list.appendChild(row);
+  });
+  function upd(){
+    var boxes=list.querySelectorAll('input'), done=0;
+    boxes.forEach(function(b){if(b.checked)done++;});
+    document.getElementById('barfill').style.width=(done/boxes.length*100)+'%';
+    document.getElementById('prog').textContent=done+' of '+boxes.length+' done'+(done===boxes.length?' — ready to ship ✓':'');
+  }
+  list.addEventListener('change',function(e){
+    var b=e.target, i=b.getAttribute('data-i');
+    b.closest('.chk').classList.toggle('done',b.checked);
+    saved[i]=b.checked;
+    try{localStorage.setItem('aiscan_chk',JSON.stringify(saved));}catch(_){}
+    upd();
+  });
+  upd();
+})();
+</script>
+</body>
+</html>

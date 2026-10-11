@@ -153,6 +153,7 @@
     <nav class="links">
       <a href="#how">How it works</a>
       <a href="#catches">What it catches</a>
+      <a href="tools/">Tools</a>
       <a href="blog/">Guides</a>
       <a href="#pricing">Pricing</a>
       <a href="#scan" class="btn btn-accent">Scan my code</a>
@@ -427,13 +428,16 @@
       '<div><div class="verdict" style="color:var(--fg);font-weight:600;font-size:15px;margin-bottom:8px">'+verdict+'</div><div class="counts">'+
         sevChip('critical',counts.critical)+sevChip('high',counts.high)+sevChip('medium',counts.medium)+sevChip('low',counts.low)+
       '</div></div>'+
-      '<button class="btn btn-ghost" id="copyReport" style="margin-left:auto;align-self:flex-start;padding:7px 12px;font-size:12px">Copy report</button>'+
+      '<div style="margin-left:auto;align-self:flex-start;display:flex;gap:8px;flex-wrap:wrap">'+
+      '<button class="btn btn-ghost" id="shareScore" style="padding:7px 12px;font-size:12px">Share score</button>'+
+      '<button class="btn btn-ghost" id="copyReport" style="padding:7px 12px;font-size:12px">Copy report</button>'+
+      '</div>'+
       '</div>';
 
     html+='<div class="findings">';
     findings.forEach(function(f){
       var s=SEV[f.rule.sev];
-      html+='<div class="finding" style="border-left-color:'+s.c+'">'+
+      html+='<div class="finding" data-sev="'+f.rule.sev+'" style="border-left-color:'+s.c+'">'+
         '<div class="ftop"><span class="tag" style="background:'+s.c+';color:#0b0e14">'+s.t+'</span>'+
         '<span class="fname">'+f.rule.name+'</span><span class="line">line '+f.line+'</span></div>'+
         '<div class="code">'+esc(f.code)+'</div>'+
@@ -444,8 +448,18 @@
     html+='</div>';
     box.innerHTML=html;
     var cb=document.getElementById('copyReport'); if(cb) cb.addEventListener('click',copyReport);
+    var ss=document.getElementById('shareScore'); if(ss) ss.addEventListener('click',shareScore);
+    box.querySelectorAll('.sev[data-sev]').forEach(function(chip){
+      if(!/\bcursor:pointer/.test(chip.getAttribute('style')||'')) return;
+      chip.addEventListener('click',function(){
+        var sev=chip.getAttribute('data-sev'), active=chip.classList.contains('active');
+        box.querySelectorAll('.sev').forEach(function(c){c.classList.remove('active');c.style.outline='';});
+        box.querySelectorAll('.finding').forEach(function(f){f.hidden = active ? false : (f.getAttribute('data-sev')!==sev);});
+        if(!active){chip.classList.add('active');chip.style.outline='2px solid '+SEV[sev].c;chip.style.outlineOffset='2px';chip.style.borderRadius='7px';}
+      });
+    });
   }
-  function sevChip(k,n){var s=SEV[k];return '<span class="sev" style="color:'+(n?s.c:'var(--faint)')+'"><i style="background:'+s.c+';opacity:'+(n?1:.3)+'"></i>'+n+' '+k+'</span>';}
+  function sevChip(k,n){var s=SEV[k];return '<span class="sev" data-sev="'+k+'" title="'+(n?'Click to filter':'')+'" style="color:'+(n?s.c:'var(--faint)')+(n?';cursor:pointer':'')+'"><i style="background:'+s.c+';opacity:'+(n?1:.3)+'"></i>'+n+' '+k+'</span>';}
 
   var inp=document.getElementById('codeIn');
   function run(){
@@ -475,6 +489,11 @@
   function copyReport(){
     var t=buildReport(), b=document.getElementById('copyReport');
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy report';},1400);}).catch(function(){b.textContent='Copy failed';});}
+  }
+  function shareScore(){
+    var t='I scored '+LAST.s+'/100 on AIScan \u{1F6E1} — it checks AI-built apps for SQL injection, leaked API keys and more. Scan yours free: https://aiscan.akclnt.com';
+    var b=document.getElementById('shareScore');
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){b.textContent='Copied — paste anywhere';setTimeout(function(){b.textContent='Share score';},1800);}).catch(function(){b.textContent='Copy failed';});}
   }
 
   // waitlist (per-browser only; wire to a real form backend on deploy)

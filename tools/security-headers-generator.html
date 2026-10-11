@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Security Headers Generator — Nginx, Apache & Express | AIScan</title>
+<meta name="description" content="Generate recommended HTTP security headers (CSP, HSTS, X-Frame-Options and more) for Nginx, Apache or Express helmet. Copy and paste.">
+<link rel="canonical" href="https://aiscan.akclnt.com/tools/security-headers-generator.html">
+<meta property="og:title" content="Security Headers Generator">
+<meta property="og:description" content="Generate recommended HTTP security headers (CSP, HSTS, X-Frame-Options and more) for Nginx, Apache or Express helmet. Copy and paste.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../blog/style.css">
+<link rel="stylesheet" href="tools.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Security headers generator","applicationCategory":"DeveloperApplication","operatingSystem":"Any (browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate recommended HTTP security headers (CSP, HSTS, X-Frame-Options and more) for Nginx, Apache or Express helmet. Copy and paste."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What are the most important security headers?","acceptedAnswer":{"@type":"Answer","text":"Content-Security-Policy and Strict-Transport-Security do the most work, followed by X-Frame-Options, X-Content-Type-Options, Referrer-Policy and Permissions-Policy."}},{"@type":"Question","name":"Will a Content-Security-Policy break my site?","acceptedAnswer":{"@type":"Answer","text":"A strict CSP can block inline scripts or third-party resources. Start from the policy here, test, and add the specific sources your app needs rather than loosening it to allow everything."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">Free tool</div>
+  <h1>Security Headers Generator</h1>
+  <p class="lead">A handful of HTTP headers block clickjacking, MIME sniffing, and forced-HTTP downgrade attacks. Copy a recommended set for your server below.</p>
+<div class="tool">
+  <div class="tabs" id="tabs"></div>
+  <div class="out"><pre><code id="out"></code></pre></div>
+  <div class="btnrow"><button class="btn btn-accent" id="copy">Copy</button></div>
+</div>
+<h2>What these headers do</h2>
+<ul>
+<li><b>Content-Security-Policy</b> — limits where scripts and styles can load from, the main defense against XSS.</li>
+<li><b>Strict-Transport-Security</b> — forces HTTPS so attackers cannot downgrade the connection.</li>
+<li><b>X-Frame-Options</b> — blocks your site being framed for clickjacking.</li>
+<li><b>X-Content-Type-Options</b> — stops browsers from MIME-sniffing responses.</li>
+<li><b>Referrer-Policy</b> &amp; <b>Permissions-Policy</b> — limit what you leak and which device APIs pages can use.</li>
+</ul>
+<p>The CSP here is a safe starting point; tighten it to match the domains your app actually loads from.</p>
+  <div class="callout">
+    <h3>Scan your app for the rest</h3>
+    <p>Headers are one layer. AIScan checks your code for injection, exposed keys and 13 more issues — free, in your browser.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>FAQ</h2>
+  <div class="faq">
+    <details><summary>What are the most important security headers?</summary><p>Content-Security-Policy and Strict-Transport-Security do the most work, followed by X-Frame-Options, X-Content-Type-Options, Referrer-Policy and Permissions-Policy.</p></details>
+    <details><summary>Will a Content-Security-Policy break my site?</summary><p>A strict CSP can block inline scripts or third-party resources. Start from the policy here, test, and add the specific sources your app needs rather than loosening it to allow everything.</p></details>
+  </div>
+  <div class="related">
+    <h3>More free tools</h3>
+    <a href="cors-generator.html">CORS config generator →</a>
+    <a href="gitignore-generator.html">.gitignore generator →</a>
+    <a href="env-checker.html">.env secret checker →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a> · <a href="/tools/">All tools</a></p>
+</footer>
+<script>
+var H={"Nginx":"add_header X-Frame-Options \"SAMEORIGIN\" always;\nadd_header X-Content-Type-Options \"nosniff\" always;\nadd_header Referrer-Policy \"strict-origin-when-cross-origin\" always;\nadd_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;\nadd_header Permissions-Policy \"camera=(), microphone=(), geolocation=()\" always;\nadd_header Content-Security-Policy \"default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'\" always;","Apache":"Header always set X-Frame-Options \"SAMEORIGIN\"\nHeader always set X-Content-Type-Options \"nosniff\"\nHeader always set Referrer-Policy \"strict-origin-when-cross-origin\"\nHeader always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"\nHeader always set Permissions-Policy \"camera=(), microphone=(), geolocation=()\"\nHeader always set Content-Security-Policy \"default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'\"","Express (helmet)":"const helmet = require('helmet');\napp.use(helmet({\n  contentSecurityPolicy: {\n    directives: {\n      defaultSrc: [\"'self'\"],\n      imgSrc: [\"'self'\", 'data:'],\n      styleSrc: [\"'self'\", \"'unsafe-inline'\"]\n    }\n  },\n  hsts: { maxAge: 31536000, includeSubDomains: true }\n}));"};
+var tab="Nginx";function render(){document.getElementById("out").textContent=H[tab];}var tabs=document.getElementById("tabs");Object.keys(H).forEach(function(t){var b=document.createElement("div");b.className="tab"+(t===tab?" on":"");b.textContent=t;b.onclick=function(){tab=t;[].forEach.call(tabs.children,function(c){c.className="tab"+(c.textContent===t?" on":"");});render();};tabs.appendChild(b);});document.getElementById("copy").onclick=function(){try{navigator.clipboard.writeText(document.getElementById("out").textContent);this.textContent="Copied";var b=this;setTimeout(function(){b.textContent="Copy";},1200);}catch(e){}};render();
+</script>
+</body>
+</html>

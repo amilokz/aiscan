@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CORS Config Generator — Safe CORS for Express, Nginx & PHP | AIScan</title>
+<meta name="description" content="Generate a safe CORS configuration with an explicit origin allowlist for Express, Nginx or PHP. No more Access-Control-Allow-Origin: *.">
+<link rel="canonical" href="https://aiscan.akclnt.com/tools/cors-generator.html">
+<meta property="og:title" content="CORS Config Generator">
+<meta property="og:description" content="Generate a safe CORS configuration with an explicit origin allowlist for Express, Nginx or PHP. No more Access-Control-Allow-Origin: *.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../blog/style.css">
+<link rel="stylesheet" href="tools.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CORS config generator","applicationCategory":"DeveloperApplication","operatingSystem":"Any (browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate a safe CORS configuration with an explicit origin allowlist for Express, Nginx or PHP. No more Access-Control-Allow-Origin: *."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Access-Control-Allow-Origin: * dangerous?","acceptedAnswer":{"@type":"Answer","text":"It is risky whenever cookies or credentials are involved, because it lets any origin make authenticated calls to your API. Use an explicit allowlist of domains you control instead."}},{"@type":"Question","name":"How do I allow multiple origins in CORS?","acceptedAnswer":{"@type":"Answer","text":"Check the incoming Origin header against a list of allowed domains and echo it back only if it matches, rather than returning a wildcard. This tool generates exactly that for Express, Nginx and PHP."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">Free tool</div>
+  <h1>CORS Config Generator</h1>
+  <p class="lead">Wide-open CORS (<code>Access-Control-Allow-Origin: *</code>) lets any website call your API with your users’ credentials. Enter the domains you actually control and get a safe, allowlist-based config.</p>
+<div class="tool">
+  <span class="lbl">Allowed origins (comma-separated)</span>
+  <input class="field" id="in" value="https://yourapp.com, https://www.yourapp.com">
+  <div class="tabs" id="tabs" style="margin-top:14px"></div>
+  <div class="out"><pre><code id="out"></code></pre></div>
+  <div class="btnrow"><button class="btn btn-accent" id="copy">Copy</button></div>
+</div>
+<h2>Why not just use *</h2>
+<p>With credentials enabled, <code>*</code> means any site on the internet can make authenticated requests to your API on behalf of a logged-in user. An explicit allowlist of your own domains closes that door while keeping your real front-ends working.</p>
+  <div class="callout">
+    <h3>Check your code for open CORS</h3>
+    <p>AIScan flags wide-open CORS and 14 other issues in your source — free, in your browser.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>FAQ</h2>
+  <div class="faq">
+    <details><summary>Is Access-Control-Allow-Origin: * dangerous?</summary><p>It is risky whenever cookies or credentials are involved, because it lets any origin make authenticated calls to your API. Use an explicit allowlist of domains you control instead.</p></details>
+    <details><summary>How do I allow multiple origins in CORS?</summary><p>Check the incoming Origin header against a list of allowed domains and echo it back only if it matches, rather than returning a wildcard. This tool generates exactly that for Express, Nginx and PHP.</p></details>
+  </div>
+  <div class="related">
+    <h3>More free tools</h3>
+    <a href="security-headers-generator.html">Security headers generator →</a>
+    <a href="gitignore-generator.html">.gitignore generator →</a>
+    <a href="env-checker.html">.env secret checker →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a> · <a href="/tools/">All tools</a></p>
+</footer>
+<script>
+var tab="Express";function snips(){var origins=document.getElementById("in").value.split(",").map(function(s){return s.trim();}).filter(Boolean);var list=origins.map(function(o){return '"'+o+'"';}).join(", ");var esc=origins.map(function(o){return o.replace(/\./g,"\\.");}).join("|");return {"Express":"const cors = require('cors');\napp.use(cors({\n  origin: ["+list+"],\n  credentials: true\n}));","Nginx":"set $cors \"\";\nif ($http_origin ~* '^("+esc+")$') { set $cors $http_origin; }\nadd_header 'Access-Control-Allow-Origin' $cors always;\nadd_header 'Access-Control-Allow-Credentials' 'true' always;","PHP":"<?php\n$allowed = ["+list+"];\n$origin = $_SERVER['HTTP_ORIGIN'] ?? '';\nif (in_array($origin, $allowed, true)) {\n  header(\"Access-Control-Allow-Origin: $origin\");\n  header('Access-Control-Allow-Credentials: true');\n}"};}
+function render(){document.getElementById("out").textContent=snips()[tab];}var tabs=document.getElementById("tabs");["Express","Nginx","PHP"].forEach(function(t){var b=document.createElement("div");b.className="tab"+(t===tab?" on":"");b.textContent=t;b.onclick=function(){tab=t;[].forEach.call(tabs.children,function(c){c.className="tab"+(c.textContent===t?" on":"");});render();};tabs.appendChild(b);});document.getElementById("in").addEventListener("input",render);document.getElementById("copy").onclick=function(){try{navigator.clipboard.writeText(document.getElementById("out").textContent);this.textContent="Copied";var b=this;setTimeout(function(){b.textContent="Copy";},1200);}catch(e){}};render();
+</script>
+</body>
+</html>

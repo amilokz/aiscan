@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>.gitignore Generator for Secrets & Common Stacks | AIScan</title>
+<meta name="description" content="Generate a .gitignore that keeps your .env, keys and build files out of Git. Pick your stack — Node, Next.js, PHP, Python and more — and copy.">
+<link rel="canonical" href="https://aiscan.akclnt.com/tools/gitignore-generator.html">
+<meta property="og:title" content=".gitignore Generator">
+<meta property="og:description" content="Generate a .gitignore that keeps your .env, keys and build files out of Git. Pick your stack — Node, Next.js, PHP, Python and more — and copy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../blog/style.css">
+<link rel="stylesheet" href="tools.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":".gitignore generator","applicationCategory":"DeveloperApplication","operatingSystem":"Any (browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Generate a .gitignore that keeps your .env, keys and build files out of Git. Pick your stack — Node, Next.js, PHP, Python and more — and copy."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What should always be in a .gitignore?","acceptedAnswer":{"@type":"Answer","text":"At minimum: your .env and .env.* files, private keys (*.pem, *.key), service-account JSON, and your dependency and build folders (node_modules, vendor, dist). Keep a committed .env.example with placeholder values instead."}},{"@type":"Question","name":"Does .gitignore remove a file already committed to Git?","acceptedAnswer":{"@type":"Answer","text":"No. .gitignore only stops new files from being tracked. A secret already in history must be rotated and scrubbed from history with a tool like git filter-repo or BFG."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">Free tool</div>
+  <h1>.gitignore Generator</h1>
+  <p class="lead">The fastest way to leak a secret is to commit your <code>.env</code>. Pick your stack below and get a .gitignore that keeps secrets, keys and build artifacts out of your repository.</p>
+<div class="tool">
+  <span class="lbl">Pick your stack</span>
+  <div class="opts" id="opts"></div>
+  <span class="lbl">Your .gitignore</span>
+  <textarea class="field" id="out" readonly placeholder="Select stacks above…"></textarea>
+  <div class="btnrow"><button class="btn btn-accent" id="copy">Copy</button></div>
+</div>
+<h2>Why this matters</h2>
+<p>Git tracks every file you add, and once a secret is committed it stays in history even after you delete it. A good .gitignore prevents the mistake up front. The <strong>Env &amp; secrets</strong> block is selected by default because that is where the real risk lives — <code>.env</code> files, private keys and service-account JSON.</p>
+<h3>After you add it</h3>
+<p>If a secret is already committed, a .gitignore will not remove it from history — rotate the key and scrub it. See our guide on <a href="/blog/how-to-fix-exposed-api-key.html">fixing an exposed API key</a>.</p>
+  <div class="callout">
+    <h3>Already committed a secret?</h3>
+    <p>Paste your code into AIScan to find hardcoded keys and other issues before they ship — free, in your browser.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>FAQ</h2>
+  <div class="faq">
+    <details><summary>What should always be in a .gitignore?</summary><p>At minimum: your .env and .env.* files, private keys (*.pem, *.key), service-account JSON, and your dependency and build folders (node_modules, vendor, dist). Keep a committed .env.example with placeholder values instead.</p></details>
+    <details><summary>Does .gitignore remove a file already committed to Git?</summary><p>No. .gitignore only stops new files from being tracked. A secret already in history must be rotated and scrubbed from history with a tool like git filter-repo or BFG.</p></details>
+  </div>
+  <div class="related">
+    <h3>More free tools</h3>
+    <a href="env-checker.html">.env secret checker →</a>
+    <a href="password-hash-checker.html">Password hash checker →</a>
+    <a href="security-headers-generator.html">Security headers generator →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a> · <a href="/tools/">All tools</a></p>
+</footer>
+<script>
+var GI={"Env & secrets":[".env",".env.*","!.env.example","*.pem","*.key","*.p12","secrets.json","serviceAccount*.json"],"Node":["node_modules/","npm-debug.log*","yarn-error.log*",".pnpm-debug.log*"],"Next.js":[".next/","out/",".vercel"],"React / Vite":["dist/",".cache/"],"Vue / Nuxt":["dist/",".nuxt/",".output/"],"PHP / Laravel":["/vendor/","composer.phar","/public/storage","storage/*.key"],"Python":["__pycache__/","*.pyc",".venv/","venv/",".pytest_cache/"],"Go":["*.exe","*.out","/bin/"],"Java":["target/","*.class","*.jar"],"macOS":[".DS_Store"],"Windows":["Thumbs.db","Desktop.ini"],"VS Code":[".vscode/"]};
+var sel={"Env & secrets":1,"Node":1};var opts=document.getElementById("opts"),out=document.getElementById("out");
+function render(){opts.innerHTML="";Object.keys(GI).forEach(function(k){var b=document.createElement("div");b.className="opt"+(sel[k]?" on":"");b.textContent=k;b.onclick=function(){if(sel[k])delete sel[k];else sel[k]=1;render();build();};opts.appendChild(b);});}
+function build(){var seen={},blocks=[];Object.keys(sel).forEach(function(k){var ls=GI[k].filter(function(l){if(seen[l])return false;seen[l]=1;return true;});if(ls.length)blocks.push("# "+k+"\n"+ls.join("\n"));});out.value=blocks.length?blocks.join("\n\n")+"\n":"";}
+document.getElementById("copy").onclick=function(){out.select();try{navigator.clipboard.writeText(out.value);this.textContent="Copied";var b=this;setTimeout(function(){b.textContent="Copy";},1200);}catch(e){}};
+render();build();
+</script>
+</body>
+</html>

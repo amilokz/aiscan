@@ -24,5 +24,13 @@
 - Claude-generated code vulnerabilities: https://aiscan.akclnt.com/blog/claude-generated-code-vulnerabilities.html
 - How to fix an exposed API key: https://aiscan.akclnt.com/blog/how-to-fix-exposed-api-key.html
 
+## Free developer security tools
+- .gitignore generator: https://aiscan.akclnt.com/tools/gitignore-generator.html
+- .env secret checker: https://aiscan.akclnt.com/tools/env-checker.html
+- Password hash checker (bcrypt vs MD5): https://aiscan.akclnt.com/tools/password-hash-checker.html
+- CORS config generator: https://aiscan.akclnt.com/tools/cors-generator.html
+- Security headers generator: https://aiscan.akclnt.com/tools/security-headers-generator.html
+
 ## Use it
 - Free scanner: https://aiscan.akclnt.com/#scan
+- All tools: https://aiscan.akclnt.com/tools/
