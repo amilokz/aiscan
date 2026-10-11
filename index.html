@@ -169,6 +169,7 @@
       <span class="chip">Runs in your browser</span>
       <span class="chip">Nothing uploaded</span>
       <span class="chip">PHP · JS · Python</span>
+      <span class="chip">15 security checks</span>
     </div>
 
     <div class="scanner" id="scannerBox">
@@ -184,7 +185,9 @@
           <textarea id="codeIn" spellcheck="false" aria-label="Code to scan"></textarea>
           <div class="scan-actions">
             <button class="btn btn-accent" id="scanBtn">Run security scan</button>
+            <button class="btn btn-ghost" id="uploadBtn">Upload file</button>
             <button class="btn btn-ghost" id="clearBtn">Clear</button>
+            <input type="file" id="fileIn" accept=".php,.js,.ts,.jsx,.tsx,.py,.env,.txt,.vue,.html,.rb,.go,.java" hidden>
           </div>
         </div>
         <div class="pane">
@@ -226,6 +229,9 @@
         <div class="cat"><div class="ic">HASH</div><h3>Weak password hashing</h3><p><span class="mono">md5</span> / <span class="mono">sha1</span> for passwords — cracked in seconds.</p></div>
         <div class="cat"><div class="ic">CONF</div><h3>Debug & default creds</h3><p>Debug mode on in production, root DB users with blank passwords.</p></div>
         <div class="cat"><div class="ic">CORS</div><h3>Wide-open CORS</h3><p>Access control set to <span class="mono">*</span>, letting any site call your API.</p></div>
+        <div class="cat"><div class="ic">PATH</div><h3>Path traversal</h3><p>Filenames from the request that can reach <span class="mono">/etc/passwd</span> or your <span class="mono">.env</span>.</p></div>
+        <div class="cat"><div class="ic">JWT</div><h3>Forgeable tokens</h3><p>JWTs accepted with <span class="mono">alg:none</span> or verification skipped — anyone forges a login.</p></div>
+        <div class="cat"><div class="ic">DESER</div><h3>Unsafe deserialization</h3><p><span class="mono">unserialize</span>, <span class="mono">pickle</span>, <span class="mono">yaml.load</span> on untrusted data.</p></div>
       </div>
     </div>
   </section>
@@ -322,6 +328,7 @@
 
   // --- detectors ------------------------------------------------------------
   var SEV = {critical:{w:40,c:'var(--crit)',t:'critical'},high:{w:22,c:'var(--high)',t:'high'},medium:{w:10,c:'var(--med)',t:'medium'},low:{w:4,c:'var(--low)',t:'low'}};
+  var LAST = {f:[],s:0};
 
   var RULES = [
     {id:'sqli',sev:'critical',name:'SQL injection',
@@ -329,7 +336,7 @@
      why:'User input is concatenated straight into the SQL string, so an attacker can rewrite the query and read or delete your whole database.',
      fix:'Use a prepared statement with bound parameters (<b>?</b> placeholders), never string interpolation.'},
     {id:'secret',sev:'high',name:'Hardcoded secret / API key',
-     test:function(l){return /(sk|rk|pk)_(live|test)_[0-9a-z]{10,}/i.test(l)||/AKIA[0-9A-Z]{16}/.test(l)||/AIza[0-9A-Za-z\-_]{20,}/.test(l)||/gh[pousr]_[0-9A-Za-z]{20,}/.test(l)||/-----BEGIN [A-Z ]*PRIVATE KEY-----/.test(l)||/\b(api[_-]?key|secret|token|passwd|password|access[_-]?key)\b\s*[:=]\s*["'][^"']{6,}["']/i.test(l);},
+     test:function(l){return /(sk|rk|pk)_(live|test)_[0-9a-z]{10,}/i.test(l)||/AKIA[0-9A-Z]{16}/.test(l)||/AIza[0-9A-Za-z\-_]{20,}/.test(l)||/gh[pousr]_[0-9A-Za-z]{20,}/.test(l)||/-----BEGIN [A-Z ]*PRIVATE KEY-----/.test(l)||/xox[baprs]-[0-9A-Za-z-]{10,}/.test(l)||/SG\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}/.test(l)||/\b(mysql|postgres(ql)?|mongodb(\+srv)?):\/\/[^:\/\s]+:[^@\/\s]+@/i.test(l)||/eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{6,}/.test(l)||/\b(api[_-]?key|secret|token|passwd|password|access[_-]?key)\b\s*[:=]\s*["'][^"']{6,}["']/i.test(l);},
      why:'A live key in your source gets committed to Git and shipped to the browser, where anyone can copy it and run up charges or steal data.',
      fix:'Move it to an <b>environment variable</b> and rotate the exposed key immediately.'},
     {id:'exec',sev:'critical',name:'Command / code execution',
@@ -355,7 +362,35 @@
     {id:'cors',sev:'medium',name:'Wide-open CORS',
      test:function(l){return /access-control-allow-origin["'\s]*[:,]\s*["']?\*/i.test(l)||/\bcors\(\s*\)/.test(l)||/origin\s*:\s*["']\*["']/.test(l);},
      why:'Allowing any origin lets malicious sites call your API with your users’ credentials.',
-     fix:'Set CORS to an explicit allowlist of domains you control, not <b>*</b>.'}
+     fix:'Set CORS to an explicit allowlist of domains you control, not <b>*</b>.'},
+    {id:'path',sev:'high',name:'Path traversal',
+     test:function(l){return /\b(include|require|require_once|include_once)\s*\(.*\$_(get|post|request)/i.test(l)||/(readfilesync|readfile|createreadstream|sendfile|file_get_contents|fopen)\s*\([^)]*(req\.(query|params|body)|\$_(get|post|request))/i.test(l);},
+     why:'A filename taken from the request lets an attacker read files outside your app — like /etc/passwd or your .env.',
+     fix:'Whitelist allowed filenames and resolve the path; never pass raw input to file APIs.'},
+    {id:'ssrf',sev:'medium',name:'SSRF / open redirect',
+     test:function(l){return /(res\.redirect|header\s*\(\s*["']?location|window\.location\s*=)\s*[^;]*(req\.(query|params|body)|\$_(get|post|request))/i.test(l)||/(fetch|axios\.(get|post)|requests\.(get|post)|curl_exec)\s*\([^)]*(req\.(query|params|body)|\$_(get|post|request))/i.test(l);},
+     why:'A URL taken from the request lets attackers redirect your users to phishing, or make your server call internal addresses.',
+     fix:'Validate the target against an allowlist of known-safe hosts before redirecting or fetching.'},
+    {id:'deser',sev:'high',name:'Insecure deserialization',
+     test:function(l){return /\b(unserialize|pickle\.loads|marshal\.load)\s*\(/i.test(l)||/yaml\.load\s*\((?![^)]*safe)/i.test(l);},
+     why:'Deserializing untrusted data can let an attacker run code on your server.',
+     fix:'Use JSON, or a safe loader (yaml.safeLoad) — never unserialize raw input.'},
+    {id:'jwtnone',sev:'medium',name:'JWT signature not enforced',
+     test:function(l){return /alg(orithm)?["'\s:]+["']?none/i.test(l)||/algorithms?\s*:\s*\[\s*["']none/i.test(l)||/jwt\.(decode|verify)\s*\([^)]*verify\s*[:=]\s*false/i.test(l);},
+     why:'Accepting the “none” algorithm or skipping verification lets anyone forge a valid login token.',
+     fix:'Always verify with a fixed algorithm (HS256/RS256) and a secret from env.'},
+    {id:'cookie',sev:'low',name:'Insecure cookie flags',
+     test:function(l){return /(httponly|secure)\s*[:=]\s*false/i.test(l)||/samesite\s*[:=]\s*["']?none/i.test(l);},
+     why:'Cookies without HttpOnly/Secure can be stolen by scripts or sent over plain HTTP.',
+     fix:'Set cookies with <b>HttpOnly</b>, <b>Secure</b> and <b>SameSite=Lax</b>.'},
+    {id:'csrf',sev:'medium',name:'CSRF protection disabled',
+     test:function(l){return /csrf_exempt|@csrf_exempt|csrf\s*:\s*false|csrfprotection\s*:\s*false/i.test(l);},
+     why:'Without CSRF protection, another site can make your logged-in users perform actions unknowingly.',
+     fix:'Keep CSRF protection on for state-changing routes (tokens or SameSite cookies).'},
+    {id:'rand',sev:'low',name:'Weak randomness for tokens',
+     test:function(l){return /(token|otp|session|password|secret|apikey|reset)\s*[=:].*math\.random\s*\(/i.test(l)||/math\.random\s*\([^)]*\)[^;]*(token|otp|session|password)/i.test(l);},
+     why:'Math.random() is predictable, so tokens and OTPs made with it can be guessed.',
+     fix:'Use a crypto-strong source (crypto.randomUUID / randomBytes, random_bytes in PHP).'}
   ];
 
   function scan(code){
@@ -381,14 +416,17 @@
     var counts={critical:0,high:0,medium:0,low:0}, penalty=0;
     findings.forEach(function(f){counts[f.rule.sev]++;penalty+=SEV[f.rule.sev].w;});
     var score=Math.max(5,100-penalty);
+    LAST={f:findings,s:score};
     var ringC = score>=80?'var(--ok)':score>=50?'var(--med)':'var(--crit)';
     var verdict = score>=80?'A few things to tighten up.':score>=50?'Risky — fix the criticals before you ship.':'Not safe to deploy. Attackers would get in fast.';
 
     var html='<div class="score-row scanning-target">'+
       '<div class="ring" style="--p:'+score+';--ring-c:'+ringC+'"><div class="inner"><span class="num">'+score+'</span><span class="lbl">score</span></div></div>'+
       '<div><div class="verdict" style="color:var(--fg);font-weight:600;font-size:15px;margin-bottom:8px">'+verdict+'</div><div class="counts">'+
-        sevChip('critical',counts.critical)+sevChip('high',counts.high)+sevChip('medium',counts.medium)+
-      '</div></div></div>';
+        sevChip('critical',counts.critical)+sevChip('high',counts.high)+sevChip('medium',counts.medium)+sevChip('low',counts.low)+
+      '</div></div>'+
+      '<button class="btn btn-ghost" id="copyReport" style="margin-left:auto;align-self:flex-start;padding:7px 12px;font-size:12px">Copy report</button>'+
+      '</div>';
 
     html+='<div class="findings">';
     findings.forEach(function(f){
@@ -403,6 +441,7 @@
     });
     html+='</div>';
     box.innerHTML=html;
+    var cb=document.getElementById('copyReport'); if(cb) cb.addEventListener('click',copyReport);
   }
   function sevChip(k,n){var s=SEV[k];return '<span class="sev" style="color:'+(n?s.c:'var(--faint)')+'"><i style="background:'+s.c+';opacity:'+(n?1:.3)+'"></i>'+n+' '+k+'</span>';}
 
@@ -414,6 +453,27 @@
   }
   document.getElementById('scanBtn').addEventListener('click',run);
   document.getElementById('clearBtn').addEventListener('click',function(){inp.value='';document.getElementById('results').innerHTML='<div class="clean"><p style="color:var(--faint)">Paste some code and hit <b style="color:var(--fg)">Run security scan</b>.</p></div>';});
+
+  // file upload + drag & drop
+  var fileIn=document.getElementById('fileIn');
+  document.getElementById('uploadBtn').addEventListener('click',function(){fileIn.click();});
+  fileIn.addEventListener('change',function(){var f=this.files[0]; if(f) readFile(f);});
+  ['dragover','dragenter'].forEach(function(ev){inp.addEventListener(ev,function(e){e.preventDefault();inp.style.outline='2px dashed var(--accent)';});});
+  ['dragleave','drop'].forEach(function(ev){inp.addEventListener(ev,function(e){e.preventDefault();inp.style.outline='';});});
+  inp.addEventListener('drop',function(e){var f=e.dataTransfer&&e.dataTransfer.files[0]; if(f) readFile(f);});
+  function readFile(f){var rd=new FileReader(); rd.onload=function(){inp.value=String(rd.result).slice(0,200000); run();}; rd.readAsText(f);}
+
+  // copy report
+  function buildReport(){
+    var f=LAST.f; if(!f.length) return 'AIScan: no common vulnerabilities found.';
+    var t='AIScan security report — score '+LAST.s+'/100\n'+f.length+' issue(s) found\n\n';
+    f.forEach(function(x,i){t+=(i+1)+'. ['+SEV[x.rule.sev].t.toUpperCase()+'] '+x.rule.name+' (line '+x.line+')\n   '+x.code+'\n   Fix: '+x.rule.fix.replace(/<[^>]+>/g,'')+'\n\n';});
+    return t+'Scanned free at aiscan.akclnt.com';
+  }
+  function copyReport(){
+    var t=buildReport(), b=document.getElementById('copyReport');
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy report';},1400);}).catch(function(){b.textContent='Copy failed';});}
+  }
 
   // waitlist (per-browser only; wire to a real form backend on deploy)
   document.getElementById('wlForm').addEventListener('submit',function(e){
