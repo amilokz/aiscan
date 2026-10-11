@@ -1,0 +1,443 @@
+<title>AIScan</title>
+<meta name="description" content="Scan your AI-built app for the security holes vibe coding leaves behind.">
+<style>
+  /* Layout: single column, dark-committed dev-tool identity; amber "scan beam" accent on cool slate neutrals, severity colors kept separate from the accent. */
+  :root{
+    --bg:#0b0e14; --surface:#141a24; --surface-2:#1b2230; --line:#28303f;
+    --fg:#e8ecf3; --muted:#97a2b4; --faint:#6b7585;
+    --accent:#ffb020; --accent-ink:#2a1d00;
+    --crit:#ff5d5d; --high:#ff954a; --med:#ffd24a; --low:#6ea8fe; --ok:#36d399;
+    --font-display:'Sora',system-ui,sans-serif;
+    --font-body:'IBM Plex Sans',system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--fg);font-family:var(--font-body);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1020px;margin:0 auto;padding-inline:20px}
+  h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.1}
+  a{color:inherit}
+  .mono{font-family:var(--font-mono)}
+
+  /* header */
+  header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(11,14,20,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;gap:20px;height:60px}
+  .brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:-.01em}
+  .logo{width:26px;height:26px;flex:none}
+  .nav .links{margin-left:auto;display:flex;gap:22px;align-items:center}
+  .nav .links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500}
+  .nav .links a:hover{color:var(--fg)}
+  .btn{font-family:var(--font-body);font-weight:600;border-radius:10px;border:1px solid transparent;cursor:pointer;font-size:14px;padding:10px 16px;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+  .btn-accent{background:var(--accent);color:var(--accent-ink)}
+  .btn-accent:hover{filter:brightness(1.08)}
+  .btn-ghost{border-color:var(--line);color:var(--fg);background:transparent}
+  .btn-ghost:hover{border-color:var(--faint);background:var(--surface)}
+  .nav .btn{padding:8px 14px}
+  @media(max-width:620px){.nav .links a:not(.btn){display:none}}
+
+  /* hero */
+  .hero{padding-block:52px 32px}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .hero h1{font-size:clamp(32px,6vw,54px);font-weight:800;letter-spacing:-.02em}
+  .hero h1 .u{color:var(--accent)}
+  .hero p.lead{color:var(--muted);font-size:clamp(16px,2.4vw,19px);max-width:62ch;margin:18px 0 0}
+  .trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{font-family:var(--font-mono);font-size:12px;color:var(--muted);border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px}
+
+  /* scanner */
+  .scanner{margin-top:34px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .scanner-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .scan-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  @media(max-width:760px){.scan-grid{grid-template-columns:1fr}}
+  .pane{padding:16px;min-width:0}
+  .pane.input{border-right:1px solid var(--line)}
+  @media(max-width:760px){.pane.input{border-right:0;border-bottom:1px solid var(--line)}}
+  .pane h3{font-size:13px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  textarea{width:100%;min-height:260px;resize:vertical;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:12px;font-family:var(--font-mono);font-size:12.5px;line-height:1.6;tab-size:2}
+  textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+  .scan-actions{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .lang-note{font-size:12px;color:var(--faint);font-family:var(--font-mono)}
+
+  /* score */
+  .score-row{display:flex;gap:16px;align-items:center;margin-bottom:16px}
+  .ring{--p:0;width:92px;height:92px;flex:none;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--ring-c) calc(var(--p)*1%),var(--surface-2) 0)}
+  .ring .inner{width:72px;height:72px;border-radius:50%;background:var(--surface);display:grid;place-items:center;flex-direction:column;text-align:center}
+  .ring .num{font-family:var(--font-display);font-weight:800;font-size:26px;line-height:1}
+  .ring .lbl{font-size:9px;font-family:var(--font-mono);color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+  .counts{display:flex;flex-wrap:wrap;gap:6px}
+  .sev{font-family:var(--font-mono);font-size:11px;font-weight:600;border-radius:7px;padding:4px 9px;border:1px solid var(--line);display:flex;gap:6px;align-items:center}
+  .sev i{width:8px;height:8px;border-radius:2px;display:inline-block}
+  .verdict{font-size:13px;color:var(--muted);margin-bottom:14px}
+
+  /* findings */
+  .findings{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow:auto;padding-right:4px}
+  .finding{border:1px solid var(--line);border-left-width:3px;border-radius:10px;background:var(--surface-2);padding:11px 13px}
+  .finding .ftop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .finding .tag{font-family:var(--font-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:5px}
+  .finding .fname{font-weight:600;font-size:14px}
+  .finding .line{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--faint)}
+  .finding .code{margin-top:8px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-family:var(--font-mono);font-size:12px;overflow-x:auto;color:#ffd9a8}
+  .finding .why{margin-top:8px;font-size:13px;color:var(--muted)}
+  .finding .fix{margin-top:7px;font-size:13px}
+  .finding .fix b{color:var(--ok);font-weight:600}
+  .clean{text-align:center;padding:30px 16px;color:var(--muted)}
+  .clean .big{font-size:40px}
+
+  /* sections */
+  section.block{padding-block:56px;border-top:1px solid var(--line)}
+  .sec-head{max-width:60ch}
+  .sec-head .eyebrow{margin-bottom:12px}
+  .sec-head h2{font-size:clamp(24px,4vw,34px);font-weight:700;letter-spacing:-.01em}
+  .sec-head p{color:var(--muted);margin:12px 0 0;font-size:16px}
+
+  .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:30px}
+  .cat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .cat .ic{font-family:var(--font-mono);font-size:12px;color:var(--accent);font-weight:700}
+  .cat h3{font-size:15px;margin:9px 0 6px;font-family:var(--font-body);font-weight:600}
+  .cat p{color:var(--muted);font-size:13px;margin:0}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
+  @media(max-width:700px){.steps{grid-template-columns:1fr}}
+  .step{border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--surface)}
+  .step .n{font-family:var(--font-mono);font-size:12px;color:var(--accent-ink);background:var(--accent);width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-weight:700;margin-bottom:12px}
+  .step h3{font-size:16px;font-weight:600;font-family:var(--font-body);margin-bottom:6px}
+  .step p{color:var(--muted);font-size:14px;margin:0}
+
+  /* pricing */
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
+  @media(max-width:820px){.tiers{grid-template-columns:1fr}}
+  .tier{border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--surface);display:flex;flex-direction:column}
+  .tier.feat{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .tier .tag2{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
+  .tier.feat .tag2{color:var(--accent)}
+  .tier .price{font-family:var(--font-display);font-weight:800;font-size:34px;margin:8px 0 2px}
+  .tier .price small{font-size:14px;color:var(--muted);font-weight:500}
+  .tier ul{list-style:none;padding:0;margin:16px 0 20px;display:flex;flex-direction:column;gap:9px}
+  .tier li{font-size:14px;color:var(--muted);display:flex;gap:9px;align-items:flex-start}
+  .tier li::before{content:"→";color:var(--accent);font-weight:700}
+  .tier .btn{margin-top:auto;width:100%}
+
+  /* waitlist */
+  .cta-card{margin-top:30px;background:linear-gradient(180deg,var(--surface),var(--surface-2));border:1px solid var(--line);border-radius:16px;padding:28px}
+  .wl-form{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;max-width:520px}
+  .wl-form input{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:12px 14px;font-family:var(--font-body);font-size:15px}
+  .wl-form input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+  .wl-note{font-size:13px;color:var(--faint);margin-top:12px}
+  .copyline{display:inline-flex;align-items:center;gap:10px;margin-top:14px;font-family:var(--font-mono);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 12px}
+  .copyline button{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:4px 9px;cursor:pointer;font-size:12px;font-family:var(--font-mono)}
+  .copyline button:hover{color:var(--fg);border-color:var(--faint)}
+
+  footer{border-top:1px solid var(--line);padding-block:30px;color:var(--faint);font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+  @media(prefers-reduced-motion:no-preference){
+    .scanning .ring{animation:pulse 1s ease-in-out infinite}
+    @keyframes pulse{50%{opacity:.5}}
+  }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap">
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      AIScan
+    </div>
+    <nav class="links">
+      <a href="#how">How it works</a>
+      <a href="#catches">What it catches</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#scan" class="btn btn-accent">Scan my code</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero" id="scan">
+    <div class="eyebrow">Security for AI-built apps</div>
+    <h1>Your AI wrote the code.<br>It also left the <span class="u">doors open</span>.</h1>
+    <p class="lead">Cursor, v0, Lovable and Claude ship features fast — and quietly leave SQL injection, exposed admin panels, and hardcoded API keys behind. Paste your code and AIScan flags what an attacker would find first.</p>
+    <div class="trust">
+      <span class="chip">No signup to scan</span>
+      <span class="chip">Runs in your browser</span>
+      <span class="chip">Nothing uploaded</span>
+      <span class="chip">PHP · JS · Python</span>
+    </div>
+
+    <div class="scanner" id="scannerBox">
+      <div class="scanner-head">
+        <span class="dot" style="background:#ff5f56"></span>
+        <span class="dot" style="background:#ffbd2e"></span>
+        <span class="dot" style="background:#27c93f"></span>
+        <span class="mono" style="color:var(--faint);font-size:12px;margin-left:6px">aiscan — scan</span>
+      </div>
+      <div class="scan-grid">
+        <div class="pane input">
+          <h3>Paste your code <span class="lang-note">example loaded ↓</span></h3>
+          <textarea id="codeIn" spellcheck="false" aria-label="Code to scan"></textarea>
+          <div class="scan-actions">
+            <button class="btn btn-accent" id="scanBtn">Run security scan</button>
+            <button class="btn btn-ghost" id="clearBtn">Clear</button>
+          </div>
+        </div>
+        <div class="pane">
+          <h3>Results</h3>
+          <div id="results"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">How it works</div>
+        <h2>From "it works" to "it's safe" in three steps</h2>
+        <p>The scan runs entirely in your browser, so your code never leaves your machine. The paid report adds line-by-line fixes and a hardened version you can drop straight in.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><h3>Paste or connect</h3><p>Drop in a file, a route, or your whole <span class="mono">conn.php</span>. Soon: paste a public GitHub repo URL and scan the lot.</p></div>
+        <div class="step"><div class="n">2</div><h3>See what's exposed</h3><p>Every finding gets a severity, the exact line, why it's dangerous, and the one-line fix — ranked worst-first.</p></div>
+        <div class="step"><div class="n">3</div><h3>Ship it hardened</h3><p>Apply the fixes yourself, grab a secure boilerplate, or hand it to us to harden and deploy for you.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="catches">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">What it catches</div>
+        <h2>The holes vibe coding leaves behind</h2>
+        <p>These are the issues we see again and again in AI-generated apps — the kind that turn one copied prompt into a data breach.</p>
+      </div>
+      <div class="cat-grid">
+        <div class="cat"><div class="ic">SQLI</div><h3>SQL injection</h3><p>User input dropped straight into a query string instead of a prepared statement.</p></div>
+        <div class="cat"><div class="ic">KEYS</div><h3>Hardcoded secrets</h3><p>Stripe, AWS, OpenAI and GitHub keys pasted right into the source.</p></div>
+        <div class="cat"><div class="ic">EXEC</div><h3>Command execution</h3><p><span class="mono">eval</span>, <span class="mono">exec</span> and <span class="mono">shell_exec</span> fed with request data.</p></div>
+        <div class="cat"><div class="ic">XSS</div><h3>Cross-site scripting</h3><p><span class="mono">innerHTML</span> and echoed input that lets attackers run their own scripts.</p></div>
+        <div class="cat"><div class="ic">AUTH</div><h3>Open admin & routes</h3><p>Admin pages and dangerous endpoints with no login check in front of them.</p></div>
+        <div class="cat"><div class="ic">HASH</div><h3>Weak password hashing</h3><p><span class="mono">md5</span> / <span class="mono">sha1</span> for passwords — cracked in seconds.</p></div>
+        <div class="cat"><div class="ic">CONF</div><h3>Debug & default creds</h3><p>Debug mode on in production, root DB users with blank passwords.</p></div>
+        <div class="cat"><div class="ic">CORS</div><h3>Wide-open CORS</h3><p>Access control set to <span class="mono">*</span>, letting any site call your API.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="pricing">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">Pricing</div>
+        <h2>Scan free. Pay only to fix faster.</h2>
+        <p>The scanner stays free forever. Upgrade when you want the detailed fixes, a hardened boilerplate, or someone to just do it for you.</p>
+      </div>
+      <div class="tiers">
+        <div class="tier">
+          <span class="tag2">Free</span>
+          <div class="price">$0</div>
+          <ul>
+            <li>Unlimited in-browser scans</li>
+            <li>All vulnerability categories</li>
+            <li>Severity + exact line</li>
+            <li>One-line fix hint per finding</li>
+          </ul>
+          <a href="#scan" class="btn btn-ghost">Start scanning</a>
+        </div>
+        <div class="tier feat">
+          <span class="tag2">Pro report</span>
+          <div class="price">$19 <small>/ report</small></div>
+          <ul>
+            <li>Everything in Free</li>
+            <li>Step-by-step fix for every finding</li>
+            <li>Hardened, copy-paste code</li>
+            <li>Secure boilerplate for your stack</li>
+            <li>Shareable PDF for your client</li>
+          </ul>
+          <a href="#waitlist" class="btn btn-accent">Join the waitlist</a>
+        </div>
+        <div class="tier">
+          <span class="tag2">Done for you</span>
+          <div class="price">$149 <small>+ </small></div>
+          <ul>
+            <li>We harden your app for you</li>
+            <li>All critical issues fixed</li>
+            <li>Deployed live with HTTPS</li>
+            <li>Before / after security report</li>
+          </ul>
+          <a href="#waitlist" class="btn btn-ghost">Request a fix</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="waitlist">
+    <div class="wrap">
+      <div class="cta-card">
+        <div class="eyebrow">Early access</div>
+        <h2 style="font-family:var(--font-display);font-size:clamp(22px,3.5vw,30px);font-weight:700">Be first when Pro reports go live</h2>
+        <p style="color:var(--muted);margin:12px 0 0;max-width:60ch">Join the waitlist for the full fix reports and hardened boilerplates. No spam — one email when it's ready, plus a founding-member discount.</p>
+        <form class="wl-form" id="wlForm">
+          <input type="email" id="wlEmail" placeholder="you@example.com" required aria-label="Email address">
+          <button class="btn btn-accent" type="submit">Get early access</button>
+        </form>
+        <div class="wl-note" id="wlNote">We'll only email you about AIScan.</div>
+
+        <p style="color:var(--muted);margin:24px 0 0;max-width:60ch">Want it hardened now? Send your repo or live URL and we'll scope a fix:</p>
+        <div class="copyline"><span id="contactEmail">hello@akclnt.com</span><button id="copyEmail">Copy</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>© <span id="yr"></span> AIScan — ship AI-built apps that don't leak.</span>
+  <span class="mono">Built for vibe coders</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SAMPLE =
+'// checkout.js  + conn.php  (AI-generated)\n'+
+'const apiKey = "prod_secret_a1b2c3d4e5f6g7h8i9j0k1";\n'+
+'\n'+
+'app.get("/run", (req, res) => {\n'+
+'  exec(req.query.cmd);            // run a command from the URL\n'+
+'});\n'+
+'\n'+
+'profile.innerHTML = req.query.bio;\n'+
+'\n'+
+'<?php\n'+
+'$conn = new mysqli("localhost", "root", "", "shop");\n'+
+'$email = $_POST["email"];\n'+
+'$conn->query("SELECT * FROM users WHERE email=\'$email\'");\n'+
+'$hash = md5($_POST["password"]);\n'+
+'header("Access-Control-Allow-Origin: *");\n';
+
+  // --- detectors ------------------------------------------------------------
+  var SEV = {critical:{w:40,c:'var(--crit)',t:'critical'},high:{w:22,c:'var(--high)',t:'high'},medium:{w:10,c:'var(--med)',t:'medium'},low:{w:4,c:'var(--low)',t:'low'}};
+
+  var RULES = [
+    {id:'sqli',sev:'critical',name:'SQL injection',
+     test:function(l){return /\b(select|insert\s+into|update|delete\s+from)\b/i.test(l) && /(["'`]).*\1\s*\.\s*\$|\$\{|' *\. *\$|" *\. *\$|%s|\.format\s*\(|\bf["']|["'`][^"'`]*\$[a-z_]|\$_(get|post|request)/i.test(l) && /["'`]/.test(l);},
+     why:'User input is concatenated straight into the SQL string, so an attacker can rewrite the query and read or delete your whole database.',
+     fix:'Use a prepared statement with bound parameters (<b>?</b> placeholders), never string interpolation.'},
+    {id:'secret',sev:'high',name:'Hardcoded secret / API key',
+     test:function(l){return /(sk|rk|pk)_(live|test)_[0-9a-z]{10,}/i.test(l)||/AKIA[0-9A-Z]{16}/.test(l)||/AIza[0-9A-Za-z\-_]{20,}/.test(l)||/gh[pousr]_[0-9A-Za-z]{20,}/.test(l)||/-----BEGIN [A-Z ]*PRIVATE KEY-----/.test(l)||/\b(api[_-]?key|secret|token|passwd|password|access[_-]?key)\b\s*[:=]\s*["'][^"']{6,}["']/i.test(l);},
+     why:'A live key in your source gets committed to Git and shipped to the browser, where anyone can copy it and run up charges or steal data.',
+     fix:'Move it to an <b>environment variable</b> and rotate the exposed key immediately.'},
+    {id:'exec',sev:'critical',name:'Command / code execution',
+     test:function(l){return /\b(eval|shell_exec|passthru|proc_open|popen)\s*\(/i.test(l)||/\b(system|exec)\s*\(/.test(l)&&!/\bexecute\b/i.test(l)||/os\.system\s*\(|subprocess\.(call|run|Popen)\s*\(|child_process\.(exec|execSync)\s*\(/.test(l);},
+     why:'Passing request data into a command or eval lets an attacker run any code on your server.',
+     fix:'Avoid shell/eval entirely; use a safe library API, and never pass user input into them.'},
+    {id:'xss',sev:'high',name:'Cross-site scripting (XSS)',
+     test:function(l){return /\.innerHTML\s*=|dangerouslySetInnerHTML|document\.write\s*\(|\.insertAdjacentHTML\s*\(|v-html/.test(l)||/echo\s+\$_(get|post|request)/i.test(l);},
+     why:'Rendering raw input as HTML lets an attacker inject scripts that run in your users’ browsers and steal their sessions.',
+     fix:'Escape output (<b>textContent</b>, or htmlspecialchars in PHP) instead of writing raw HTML.'},
+    {id:'creds',sev:'high',name:'Default / blank DB credentials',
+     test:function(l){return /(mysqli_connect|new\s+mysqli|createconnection|createpool)\s*\([^)]*["']root["']\s*,\s*["']["']/i.test(l);},
+     why:'A root database user with a blank password means anyone who reaches the DB port owns your data.',
+     fix:'Create a dedicated DB user with a strong password and load it from an environment variable.'},
+    {id:'hash',sev:'medium',name:'Weak password hashing',
+     test:function(l){return /\b(md5|sha1)\s*\(/i.test(l);},
+     why:'MD5 and SHA1 are cracked in seconds, so leaked passwords are effectively plaintext.',
+     fix:'Hash passwords with <b>bcrypt / Argon2</b> (password_hash in PHP, bcrypt in Node).'},
+    {id:'debug',sev:'medium',name:'Debug mode in production',
+     test:function(l){return /debug\s*=\s*true/i.test(l)||/app\.run\([^)]*debug\s*=\s*true/i.test(l)||/display_errors[^;]*(,|=)\s*(1|on|true)/i.test(l)||/FLASK_ENV\s*=\s*development/i.test(l);},
+     why:'Debug mode leaks stack traces, file paths and sometimes secrets to anyone who triggers an error.',
+     fix:'Turn debug off in production and log errors server-side instead of showing them.'},
+    {id:'cors',sev:'medium',name:'Wide-open CORS',
+     test:function(l){return /access-control-allow-origin["'\s]*[:,]\s*["']?\*/i.test(l)||/\bcors\(\s*\)/.test(l)||/origin\s*:\s*["']\*["']/.test(l);},
+     why:'Allowing any origin lets malicious sites call your API with your users’ credentials.',
+     fix:'Set CORS to an explicit allowlist of domains you control, not <b>*</b>.'}
+  ];
+
+  function scan(code){
+    var lines = code.split(/\r?\n/), out=[];
+    for(var i=0;i<lines.length;i++){
+      var raw=lines[i], l=raw.trim();
+      if(!l||l==='<?php'||l==='?>') continue;
+      for(var r=0;r<RULES.length;r++){
+        try{ if(RULES[r].test(l)){ out.push({rule:RULES[r],line:i+1,code:l.length>120?l.slice(0,120)+'…':l}); break; } }catch(e){}
+      }
+    }
+    return out;
+  }
+
+  function esc(s){return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+
+  function render(findings, total){
+    var box=document.getElementById('results');
+    if(!findings.length){
+      box.innerHTML='<div class="clean"><div class="big">✓</div><p>No common vulnerabilities found in this snippet.<br><span style="color:var(--faint);font-size:13px">A clean scan isn\'t a full audit — paste more of your app to be sure.</span></p></div>';
+      return;
+    }
+    var counts={critical:0,high:0,medium:0,low:0}, penalty=0;
+    findings.forEach(function(f){counts[f.rule.sev]++;penalty+=SEV[f.rule.sev].w;});
+    var score=Math.max(5,100-penalty);
+    var ringC = score>=80?'var(--ok)':score>=50?'var(--med)':'var(--crit)';
+    var verdict = score>=80?'A few things to tighten up.':score>=50?'Risky — fix the criticals before you ship.':'Not safe to deploy. Attackers would get in fast.';
+
+    var html='<div class="score-row scanning-target">'+
+      '<div class="ring" style="--p:'+score+';--ring-c:'+ringC+'"><div class="inner"><span class="num">'+score+'</span><span class="lbl">score</span></div></div>'+
+      '<div><div class="verdict" style="color:var(--fg);font-weight:600;font-size:15px;margin-bottom:8px">'+verdict+'</div><div class="counts">'+
+        sevChip('critical',counts.critical)+sevChip('high',counts.high)+sevChip('medium',counts.medium)+
+      '</div></div></div>';
+
+    html+='<div class="findings">';
+    findings.forEach(function(f){
+      var s=SEV[f.rule.sev];
+      html+='<div class="finding" style="border-left-color:'+s.c+'">'+
+        '<div class="ftop"><span class="tag" style="background:'+s.c+';color:#0b0e14">'+s.t+'</span>'+
+        '<span class="fname">'+f.rule.name+'</span><span class="line">line '+f.line+'</span></div>'+
+        '<div class="code">'+esc(f.code)+'</div>'+
+        '<div class="why">'+f.rule.why+'</div>'+
+        '<div class="fix"><b>Fix:</b> '+f.rule.fix+'</div>'+
+      '</div>';
+    });
+    html+='</div>';
+    box.innerHTML=html;
+  }
+  function sevChip(k,n){var s=SEV[k];return '<span class="sev" style="color:'+(n?s.c:'var(--faint)')+'"><i style="background:'+s.c+';opacity:'+(n?1:.3)+'"></i>'+n+' '+k+'</span>';}
+
+  var inp=document.getElementById('codeIn');
+  function run(){
+    var box=document.getElementById('scannerBox'); box.classList.add('scanning');
+    var f=scan(inp.value);
+    setTimeout(function(){ render(f); box.classList.remove('scanning'); },280);
+  }
+  document.getElementById('scanBtn').addEventListener('click',run);
+  document.getElementById('clearBtn').addEventListener('click',function(){inp.value='';document.getElementById('results').innerHTML='<div class="clean"><p style="color:var(--faint)">Paste some code and hit <b style="color:var(--fg)">Run security scan</b>.</p></div>';});
+
+  // waitlist (per-browser only; wire to a real form backend on deploy)
+  document.getElementById('wlForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var email=document.getElementById('wlEmail').value.trim();
+    if(!email) return;
+    try{var list=JSON.parse(localStorage.getItem('aiscan_wl')||'[]');list.push({e:email,t:Date.now()});localStorage.setItem('aiscan_wl',JSON.stringify(list));}catch(_){}
+    document.getElementById('wlForm').hidden=true;
+    document.getElementById('wlNote').innerHTML='<span style="color:var(--ok)">✓ You\'re on the list.</span> We\'ll email '+esc(email)+' when Pro reports go live.';
+  });
+
+  // copy email
+  document.getElementById('copyEmail').addEventListener('click',function(){
+    var t=document.getElementById('contactEmail').textContent, b=this;
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1400);}).catch(select);
+    }else select();
+    function select(){var r=document.createRange();r.selectNodeContents(document.getElementById('contactEmail'));var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Select+copy';}
+  });
+
+  document.getElementById('yr').textContent=new Date().getFullYear();
+
+  // boot with the example loaded and scanned, so the page is useful at rest
+  inp.value=SAMPLE;
+  render(scan(SAMPLE));
+})();
+</script>
