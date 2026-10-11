@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Is Replit AI Code Secure? Secrets, Public Repls & Checklist | AIScan</title>
+<meta name="description" content="Replit Agent builds and hosts your app in one place, which makes exposed secrets and public Repls a real risk. Here is how to keep a Replit app secure.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/is-replit-ai-code-secure.html">
+<meta property="og:title" content="Is Replit AI Code Secure? The Repl Checklist">
+<meta property="og:description" content="Replit Agent builds and hosts your app in one place, which makes exposed secrets and public Repls a real risk. Here is how to keep a Replit app secure.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Is Replit AI Code Secure? The Repl Checklist","description":"Replit Agent builds and hosts your app in one place, which makes exposed secrets and public Repls a real risk. Here is how to keep a Replit app secure.","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/is-replit-ai-code-secure.html"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Replit AI code safe to deploy?","acceptedAnswer":{"@type":"Answer","text":"Replit Agent produces working apps, but because it builds and hosts in one place, hardcoded secrets and public Repls are common risks. Use Replit Secrets for keys, keep sensitive Repls private, and add auth to your routes before sharing."}},{"@type":"Question","name":"Where should I store API keys in Replit?","acceptedAnswer":{"@type":"Answer","text":"In the Secrets tab, which exposes them to your app as environment variables. Never hardcode keys in the code, especially in a public Repl where the source is visible to everyone."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">AI code security</div>
+  <h1>Is Replit AI Code Secure? The Repl Checklist</h1>
+  <div class="meta">6 min read · Updated 2026</div>
+  <p class="lead">Replit Agent is uniquely convenient: it writes your app and hosts it in the same place. That convenience is also the risk — your code, your secrets and your live URL all live together, and the defaults are not always private. Here is what to check.</p>
+<h2>The Replit blind spot: build and host in one place</h2>
+<p>Because a Repl is both your source and your running app, a secret in the code is a secret on a public URL. The single most important habit on Replit is using <strong>Secrets</strong> (the environment-variable manager) instead of hardcoding keys.</p>
+<h2>1. Use Replit Secrets, not hardcoded keys</h2>
+<p>Put API keys and tokens in the Secrets tab and read them from the environment. Never paste them into the code, where they can be seen in a public Repl.</p>
+<h2>2. Check whether your Repl is public</h2>
+<p>Public Repls expose your source to anyone. If it contains anything sensitive, make it private or move secrets out first.</p>
+<h2>3. Protect your routes</h2>
+<p>Agent-built apps often ship without auth on admin or data routes. Add login checks before the app goes live.</p>
+<h2>4. SQL injection and input validation</h2>
+<p>Use parameterized queries and validate input, same as any app — see <a href="how-to-prevent-sql-injection.html">preventing SQL injection</a>.</p>
+<h2>5. Review before you share the URL</h2>
+<p>Once you share a Repl’s live link, assume it is being probed. Scan the code and rotate any key that was ever in the source.</p>
+  <div class="callout">
+    <h3>Check your Repl before you share it</h3>
+    <p>Paste your Repl’s code into AIScan to catch hardcoded secrets, open routes and injection — free, in your browser.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Is Replit AI code safe to deploy?</summary><p>Replit Agent produces working apps, but because it builds and hosts in one place, hardcoded secrets and public Repls are common risks. Use Replit Secrets for keys, keep sensitive Repls private, and add auth to your routes before sharing.</p></details>
+    <details><summary>Where should I store API keys in Replit?</summary><p>In the Secrets tab, which exposes them to your app as environment variables. Never hardcode keys in the code, especially in a public Repl where the source is visible to everyone.</p></details>
+  </div>
+  <div class="related">
+    <h3>Related guides</h3>
+    <a href="is-cursor-generated-code-secure.html">Is Cursor-generated code secure? →</a>
+    <a href="how-to-fix-exposed-api-key.html">How to fix an exposed API key →</a>
+    <a href="how-to-prevent-sql-injection.html">How to prevent SQL injection →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a> · <a href="/tools/">Tools</a></p>
+</footer>
+</body>
+</html>

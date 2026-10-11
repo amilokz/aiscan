@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Is Windsurf Code Secure? What to Review in Agentic Edits | AIScan</title>
+<meta name="description" content="Windsurf edits many files at once with its agent. That speed is exactly why security holes slip in. Here is what to review before you ship Windsurf-generated code.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/is-windsurf-code-secure.html">
+<meta property="og:title" content="Is Windsurf Code Secure? Reviewing Agentic Edits">
+<meta property="og:description" content="Windsurf edits many files at once with its agent. That speed is exactly why security holes slip in. Here is what to review before you ship Windsurf-generated code.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Is Windsurf Code Secure? Reviewing Agentic Edits","description":"Windsurf edits many files at once with its agent. That speed is exactly why security holes slip in. Here is what to review before you ship Windsurf-generated code.","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/is-windsurf-code-secure.html"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Windsurf-generated code safe to deploy?","acceptedAnswer":{"@type":"Answer","text":"Windsurf writes working code but does no security review, and its multi-file agent edits are easy to accept without reading. Review the diff and scan for injection, exposed secrets and missing auth before deploying."}},{"@type":"Question","name":"Why are agentic AI edits riskier to review?","acceptedAnswer":{"@type":"Answer","text":"Because one instruction can change many files at once, developers rarely read every diff, so an unsafe query or a dropped auth check can slip in unnoticed. Treat each agent run like a pull request from a new contributor."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">AI code security</div>
+  <h1>Is Windsurf Code Secure? Reviewing Agentic Edits</h1>
+  <div class="meta">6 min read · Updated 2026</div>
+  <p class="lead">Windsurf’s Cascade agent is powerful: it edits across your whole codebase from one instruction. But the same thing that makes it fast — sweeping, multi-file changes you did not type — is what makes security review essential. Here is what to check.</p>
+<h2>The Windsurf blind spot: changes you did not read</h2>
+<p>When an agent touches ten files to add a feature, almost nobody reads all ten diffs line by line. That is where an unsafe query, a logged secret, or a dropped auth check hides. Treat every agent run as code from a new contributor: review the diff, do not just run it.</p>
+<h2>1. Review the diff, not just the result</h2>
+<p>Before accepting a multi-file edit, scan each change for the usual suspects — string-built queries, new endpoints without auth, console logs of sensitive data.</p>
+<h2>2. SQL injection in generated queries</h2>
+<p>Like every AI coder, Windsurf will concatenate input into queries if the surrounding style does. Confirm parameters. See <a href="how-to-prevent-sql-injection.html">how to prevent SQL injection</a>.</p>
+<h2>3. New routes without authentication</h2>
+<p>An agent adding an admin or data route rarely adds the login check. Verify each new endpoint is guarded.</p>
+<h2>4. Secrets introduced during iteration</h2>
+<p>Test keys pasted mid-session survive into committed code. Scan for hardcoded keys and move them to env vars.</p>
+<h2>5. Dependencies the agent added</h2>
+<p>Agents add packages freely. Check new dependencies are real, maintained, and not typosquats.</p>
+  <div class="callout">
+    <h3>Scan a Windsurf edit before you accept it</h3>
+    <p>Paste the changed files into AIScan — it flags injection, exposed keys and missing auth with the exact line, free and in your browser.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Is Windsurf-generated code safe to deploy?</summary><p>Windsurf writes working code but does no security review, and its multi-file agent edits are easy to accept without reading. Review the diff and scan for injection, exposed secrets and missing auth before deploying.</p></details>
+    <details><summary>Why are agentic AI edits riskier to review?</summary><p>Because one instruction can change many files at once, developers rarely read every diff, so an unsafe query or a dropped auth check can slip in unnoticed. Treat each agent run like a pull request from a new contributor.</p></details>
+  </div>
+  <div class="related">
+    <h3>Related guides</h3>
+    <a href="is-cursor-generated-code-secure.html">Is Cursor-generated code secure? →</a>
+    <a href="how-to-prevent-sql-injection.html">How to prevent SQL injection →</a>
+    <a href="how-to-fix-exposed-api-key.html">How to fix an exposed API key →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a> · <a href="/tools/">Tools</a></p>
+</footer>
+</body>
+</html>

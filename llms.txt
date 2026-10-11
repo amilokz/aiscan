@@ -23,6 +23,12 @@
 - Is Bolt.new code secure?: https://aiscan.akclnt.com/blog/is-bolt-new-code-secure.html
 - Claude-generated code vulnerabilities: https://aiscan.akclnt.com/blog/claude-generated-code-vulnerabilities.html
 - How to fix an exposed API key: https://aiscan.akclnt.com/blog/how-to-fix-exposed-api-key.html
+- Is Windsurf code secure?: https://aiscan.akclnt.com/blog/is-windsurf-code-secure.html
+- Is Replit AI code secure?: https://aiscan.akclnt.com/blog/is-replit-ai-code-secure.html
+- How to prevent SQL injection (PHP, Node, Python): https://aiscan.akclnt.com/blog/how-to-prevent-sql-injection.html
+- Secure a Next.js app: https://aiscan.akclnt.com/blog/secure-nextjs-app-checklist.html
+- AI coding tools security ratings: https://aiscan.akclnt.com/blog/ai-coding-tools-security.html
+- Pre-deploy security checklist: https://aiscan.akclnt.com/tools/pre-deploy-security-checklist.html
 
 ## Free developer security tools
 - .gitignore generator: https://aiscan.akclnt.com/tools/gitignore-generator.html

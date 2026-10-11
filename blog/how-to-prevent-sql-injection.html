@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How to Prevent SQL Injection (PHP, Node, Python) | AIScan</title>
+<meta name="description" content="SQL injection is the most common hole in AI-generated code. Here is how to prevent it with parameterized queries in PHP, Node.js and Python — with examples.">
+<link rel="canonical" href="https://aiscan.akclnt.com/blog/how-to-prevent-sql-injection.html">
+<meta property="og:title" content="How to Prevent SQL Injection">
+<meta property="og:description" content="SQL injection is the most common hole in AI-generated code. Here is how to prevent it with parameterized queries in PHP, Node.js and Python — with examples.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to Prevent SQL Injection","description":"SQL injection is the most common hole in AI-generated code. Here is how to prevent it with parameterized queries in PHP, Node.js and Python — with examples.","author":{"@type":"Organization","name":"AIScan"},"publisher":{"@type":"Organization","name":"AIScan"},"mainEntityOfPage":"https://aiscan.akclnt.com/blog/how-to-prevent-sql-injection.html"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the best way to prevent SQL injection?","acceptedAnswer":{"@type":"Answer","text":"Use parameterized (prepared) queries: send the SQL and the user data separately with placeholders, so input can never be interpreted as query code. This is the single most effective defense."}},{"@type":"Question","name":"Do ORMs prevent SQL injection?","acceptedAnswer":{"@type":"Answer","text":"Yes, for normal use — ORMs like Prisma, Eloquent and SQLAlchemy parameterize queries automatically. The exception is their raw-query methods, where you must still use parameters rather than string concatenation."}},{"@type":"Question","name":"Is escaping input enough to stop SQL injection?","acceptedAnswer":{"@type":"Answer","text":"Manual escaping is error-prone and easy to get wrong. Parameterized queries are the reliable fix because the database treats the input strictly as data, not as part of the query."}}]}</script>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 12.4 12 15 6.9-2.6 12-7.5 12-15V7L16 2Z" fill="#141a24" stroke="#ffb020" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 16.5 14.5 20.5 22 11" stroke="#ffb020" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AIScan</a>
+    <a class="cta" href="/#scan">Scan my code</a>
+  </div>
+</header>
+<article class="wrap">
+  <div class="eyebrow">Fix it right</div>
+  <h1>How to Prevent SQL Injection</h1>
+  <div class="meta">6 min read · Updated 2026</div>
+  <p class="lead">SQL injection is the single most common — and most dangerous — vulnerability in AI-generated code. The fix is always the same idea: never build a query by gluing in user input. Here is exactly how, in the three stacks most vibe-coded apps use.</p>
+<h2>Why it happens</h2>
+<p>When user input is concatenated into a query string, an attacker can send input that changes the query itself — reading, modifying or deleting your whole database. The fix is <strong>parameterized queries</strong>: you send the query and the data separately, so input can never become code.</p>
+<h2>PHP (mysqli / PDO)</h2>
+<pre><code><span class="tag">Vulnerable</span>$conn->query("SELECT * FROM users WHERE email='$email'");</code></pre>
+<pre class="ok"><code><span class="tag good">Safe</span>$stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+$stmt->bind_param("s", $email);
+$stmt->execute();</code></pre>
+<h2>Node.js (mysql2 / pg)</h2>
+<pre><code><span class="tag">Vulnerable</span>db.query(`SELECT * FROM users WHERE email='${email}'`);</code></pre>
+<pre class="ok"><code><span class="tag good">Safe</span>db.query("SELECT * FROM users WHERE email = ?", [email]);</code></pre>
+<h2>Python (sqlite3 / psycopg)</h2>
+<pre><code><span class="tag">Vulnerable</span>cur.execute("SELECT * FROM users WHERE email='%s'" % email)</code></pre>
+<pre class="ok"><code><span class="tag good">Safe</span>cur.execute("SELECT * FROM users WHERE email = %s", (email,))</code></pre>
+<h2>The rule</h2>
+<p>Put a placeholder (<code>?</code> or <code>%s</code>) where the value goes, and pass the value separately. Never use string concatenation, <code>.format()</code>, or f-strings to build a query. An ORM (Prisma, Eloquent, SQLAlchemy) does this for you — just avoid its raw-query escape hatches with user input.</p>
+  <div class="callout">
+    <h3>Find injection in your code</h3>
+    <p>AIScan flags string-built queries in PHP, JavaScript and Python with the exact line — free, in your browser.</p>
+    <a href="/#scan">Scan my code free →</a>
+  </div>
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>What is the best way to prevent SQL injection?</summary><p>Use parameterized (prepared) queries: send the SQL and the user data separately with placeholders, so input can never be interpreted as query code. This is the single most effective defense.</p></details>
+    <details><summary>Do ORMs prevent SQL injection?</summary><p>Yes, for normal use — ORMs like Prisma, Eloquent and SQLAlchemy parameterize queries automatically. The exception is their raw-query methods, where you must still use parameters rather than string concatenation.</p></details>
+    <details><summary>Is escaping input enough to stop SQL injection?</summary><p>Manual escaping is error-prone and easy to get wrong. Parameterized queries are the reliable fix because the database treats the input strictly as data, not as part of the query.</p></details>
+  </div>
+  <div class="related">
+    <h3>Related guides</h3>
+    <a href="is-cursor-generated-code-secure.html">Is Cursor-generated code secure? →</a>
+    <a href="how-to-fix-exposed-api-key.html">How to fix an exposed API key →</a>
+    <a href="secure-nextjs-app-checklist.html">Secure a Next.js app: checklist →</a>
+  </div>
+</article>
+<footer class="wrap">
+  <p>© 2026 <a href="/">AIScan</a> — ship AI-built apps that don't leak. · <a href="/#scan">Free scanner</a> · <a href="/tools/">Tools</a></p>
+</footer>
+</body>
+</html>
