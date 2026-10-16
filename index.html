@@ -344,11 +344,17 @@
 
   var RULES = [
     {id:'sqli',sev:'critical',name:'SQL injection',
-     test:function(l){return /\b(select|insert\s+into|update|delete\s+from)\b/i.test(l) && /(["'`]).*\1\s*\.\s*\$|\$\{|' *\. *\$|" *\. *\$|%s|\.format\s*\(|\bf["']|["'`][^"'`]*\$[a-z_]|\$_(get|post|request)/i.test(l) && /["'`]/.test(l);},
+     test:function(l){
+       if(!/\b(select|insert\s+into|update|delete\s+from)\b/i.test(l)||!/["'`]/.test(l)) return false;
+       if(/(["'`]).*\1\s*\.\s*\$|\$\{|' *\. *\$|" *\. *\$|%s|\.format\s*\(|\bf["']|["'`][^"'`]*\$[a-z_]|\$_(get|post|request)/i.test(l)) return true;
+       /* JS/Python "+" string building: demand real SQL context so plain-English
+          "select"/"update" + concatenation doesn't false-positive. */
+       return /\b(from|where|set|values|into)\b/i.test(l) && /(["'`])\s*\+|\+\s*["'`]/.test(l);
+     },
      why:'User input is concatenated straight into the SQL string, so an attacker can rewrite the query and read or delete your whole database.',
      fix:'Use a prepared statement with bound parameters (<b>?</b> placeholders), never string interpolation.'},
     {id:'secret',sev:'high',name:'Hardcoded secret / API key',
-     test:function(l){return /(sk|rk|pk)_(live|test)_[0-9a-z]{10,}/i.test(l)||/AKIA[0-9A-Z]{16}/.test(l)||/AIza[0-9A-Za-z\-_]{20,}/.test(l)||/gh[pousr]_[0-9A-Za-z]{20,}/.test(l)||/-----BEGIN [A-Z ]*PRIVATE KEY-----/.test(l)||/xox[baprs]-[0-9A-Za-z-]{10,}/.test(l)||/SG\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}/.test(l)||/\b(mysql|postgres(ql)?|mongodb(\+srv)?):\/\/[^:\/\s]+:[^@\/\s]+@/i.test(l)||/eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{6,}/.test(l)||/\b(api[_-]?key|secret|token|passwd|password|access[_-]?key)\b\s*[:=]\s*["'][^"']{6,}["']/i.test(l);},
+     test:function(l){return /(sk|rk|pk)_(live|test)_[0-9a-z]{10,}/i.test(l)||/AKIA[0-9A-Z]{16}/.test(l)||/AIza[0-9A-Za-z\-_]{20,}/.test(l)||/gh[pousr]_[0-9A-Za-z]{20,}/.test(l)||/-----BEGIN [A-Z ]*PRIVATE KEY-----/.test(l)||/xox[baprs]-[0-9A-Za-z-]{10,}/.test(l)||/SG\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}/.test(l)||/\b(mysql|postgres(ql)?|mongodb(\+srv)?):\/\/[^:\/\s]+:[^@\/\s]+@/i.test(l)||/eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{6,}/.test(l)||/(api[_-]?keys?|secrets?|tokens?|passwd|passwords?|pass|pwd|access[_-]?keys?)\b\s*[:=]\s*["'][^"']{6,}["']/i.test(l);},
      why:'A live key in your source gets committed to Git and shipped to the browser, where anyone can copy it and run up charges or steal data.',
      fix:'Move it to an <b>environment variable</b> and rotate the exposed key immediately.'},
     {id:'exec',sev:'critical',name:'Command / code execution',
