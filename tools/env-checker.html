@@ -5,10 +5,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>.env Checker — Find Secrets You Should Not Commit | AIScan</title>
+<title>.env Checker — Find Exposed Secrets &amp; API Keys | AIScan</title>
 <meta name="description" content="Paste your .env file and see which values are real secrets you must keep out of Git. Runs in your browser — nothing is uploaded.">
 <link rel="canonical" href="https://aiscan.akclnt.com/tools/env-checker.html">
-<meta property="og:title" content=".env Secret Checker">
+<meta property="og:title" content=".env Checker — Find Exposed Secrets &amp; API Keys">
 <meta property="og:description" content="Paste your .env file and see which values are real secrets you must keep out of Git. Runs in your browser — nothing is uploaded.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +37,7 @@ APP_NAME=My App"></textarea>
   <div class="btnrow"><button class="btn btn-accent" id="run">Check</button></div>
   <div id="out"></div>
 </div>
-<h2>What it checks</h2>
+<h2>.env Checker: What It Checks</h2>
 <p>It scans each line for values that look like real API keys and tokens (Stripe, AWS, Google, GitHub, Slack, SendGrid, JWTs and database connection strings), and for key names that imply a secret — <code>SECRET</code>, <code>PASSWORD</code>, <code>TOKEN</code>, <code>API_KEY</code>. Placeholder values are treated as safe.</p>
 <h3>The rule</h3>
 <p>No real <code>.env</code> should ever be committed. Keep one <code>.env.example</code> with placeholders, and add <code>.env</code> to your <a href="/tools/gitignore-generator.html">.gitignore</a>.</p>
@@ -46,7 +46,7 @@ APP_NAME=My App"></textarea>
     <p>AIScan checks your source code for the same secrets plus SQL injection, open admin routes and more — free, in your browser.</p>
     <a href="/#scan">Scan my code free →</a>
   </div>
-  <h2>FAQ</h2>
+  <h2>Frequently Asked Questions</h2>
   <div class="faq">
     <details><summary>Is it safe to paste my .env here?</summary><p>Yes. The check runs entirely in your browser with JavaScript; nothing is uploaded or stored. You can disconnect from the internet and it still works.</p></details>
     <details><summary>Should I ever commit a .env file?</summary><p>No. Commit a .env.example with placeholder values so teammates know which variables are needed, and keep the real .env git-ignored. Store production secrets in your host environment settings.</p></details>
